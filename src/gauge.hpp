@@ -15,7 +15,7 @@ class gauge :
 {
 public:
 	struct parameters{
-		std::shared_ptr<ruis::res::image> arrow;
+		utki::shared_ref<ruis::res::image> arrow;
 		std::shared_ptr<ruis::res::image> shadow;
 		
 		real arm_fraction = 1;
@@ -23,25 +23,29 @@ public:
 		real start_angle_rad = utki::deg_to_rad(real(200));
 		real end_angle_rad = utki::deg_to_rad(real(-20));
 	};
+
+	struct all_parameters{
+		ruis::widget::parameters widget_params;
+		ruis::blending_widget::parameters blending_params;
+		parameters params;
+	};
 private:
 	parameters params;
 
 	std::shared_ptr<const ruis::res::image::texture> arrow_tex;
 	std::shared_ptr<const ruis::res::image::texture> shadow_tex;
 public:
-	gauge(const utki::shared_ref<ruis::context>& c, const tml::forest& desc);
-	
+	gauge(utki::shared_ref<ruis::context> c, all_parameters params);
+
 	void on_lay_out()override;
 	
 	void render(const ruis::matrix4& matrix) const override;
 };
 
 namespace make{
-
-struct gauge_parameters{
-
-};
-
+inline utki::shared_ref<ruis::gauge> gauge(utki::shared_ref<ruis::context> c, ruis::gauge::all_parameters params){
+	return utki::make_shared<ruis::gauge>(std::move(c), std::move(params));
+}
 }
 
 }

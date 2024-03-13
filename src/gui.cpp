@@ -56,19 +56,29 @@ utki::shared_ref<ruis::widget> carcockpit::make_root_layout(utki::shared_ref<rui
                                 }
                             },
                             .image_params = {
-                                .img = c.get().loader.load<ruis::res::image>("ruis_img_gauge_scale")
+                                .img = c.get().loader.load<ruis::res::image>("img_gauge_scale")
                             }
                         }
                     ),
                     utki::dynamic_reference_cast<ruis::widget>(
-                        utki::make_shared<ruis::gauge>(c,
-                        tml::read(R"(
-                            id{gauge}
-                            lp{dx{fill} dy{fill}}
-                            armFraction{0.75}
-                            startAngle{225}
-                            endAngle{-45}
-                        )"))
+                        m::gauge(
+                            c,
+                            {
+                                .widget_params = {
+                                    .id = "gauge"s,
+                                    .lp = {
+                                        .dims = {lp::fill, lp::fill}
+                                    }
+                                },
+                                .params = {
+                                    .arrow = c.get().loader.load<ruis::res::image>("img_gauge_arrow"),
+                                    .shadow = c.get().loader.load<ruis::res::image>("img_gauge_arrow_shadow"),
+                                    .arm_fraction = 0.75,
+                                    .start_angle_rad = utki::deg_to_rad(225.0),
+                                    .end_angle_rad = utki::deg_to_rad(-45.0)
+                                }
+                            }
+                        )
                     )
                 }
             )

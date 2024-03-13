@@ -4,52 +4,16 @@
 
 using namespace ruis;
 
-gauge::gauge(const utki::shared_ref<ruis::context>& c, const tml::forest& desc) :
-		widget(c, desc),
-		blending_widget(this->context, desc),
-		fraction_widget(this->context, desc)
-{
-	bool shadow_attribute_found = false;
-
-	for(const auto& p : desc){
-		if(!is_property(p)){
-			continue;
-		}
-
-		if(p.value == "armFraction"){
-			this->params.arm_fraction = ruis::get_property_value(p).to_float();
-		}else if(p.value == "startAngle"){
-			auto deg = ruis::get_property_value(p).to_float();
-			this->params.start_angle_rad = utki::deg_to_rad(deg);
-		}else if(p.value == "endAngle"){
-			auto deg = ruis::get_property_value(p).to_float();
-			this->params.end_angle_rad = utki::deg_to_rad(deg);
-		}else if(p.value == "arrowImage"){
-			this->params.arrow = this->context.get().loader.load<ruis::res::image>(ruis::get_property_value(p).string);
-		}else if(p.value == "shadowImage"){
-			shadow_attribute_found = true;
-			try{
-				this->params.shadow = this->context.get().loader.load<ruis::res::image>(ruis::get_property_value(p).string);
-			}catch(std::runtime_error& e){
-				// do nothing
-			}
-		}
-	}
-
-	if(!this->params.arrow){
-		this->params.arrow = this->context.get().loader.load<ruis::res::image>("ruis_img_gauge_arrow");
-	}
-
-	if(!shadow_attribute_found && !this->params.shadow){
-		this->params.shadow = this->context.get().loader.load<ruis::res::image>("ruis_img_gauge_arrow_shadow");
-	}
-	
-}
+gauge::gauge(utki::shared_ref<ruis::context> c, all_parameters p) :
+	widget(std::move(c), std::move(p.widget_params)),
+	blending_widget(this->context, std::move(p.blending_params)),
+	fraction_widget(this->context, {}),
+	params(std::move(p.params))
+{}
 
 void gauge::on_lay_out(){
-	ASSERT(this->params.arrow)
 	// TODO: naming convention
-	auto arrowDim = this->params.arrow->dims();
+	auto arrowDim = this->params.arrow.get().dims();
 	real armLength = arrowDim.x() * this->params.arm_fraction;
 	
 	if(armLength <= 0){
@@ -58,7 +22,7 @@ void gauge::on_lay_out(){
 	
 	auto scale = (std::max(this->rect().d.x(), this->rect().d.y()) / 2) / armLength;
 	
-	this->arrow_tex = this->params.arrow->get(arrowDim * scale).to_shared_ptr();
+	this->arrow_tex = this->params.arrow.get().get(arrowDim * scale).to_shared_ptr();
 	
 	if(this->params.shadow){
 		// TRACE(<< "this->shadow->dims() * scale = " << this->shadow->dims() * scale << std::endl)
