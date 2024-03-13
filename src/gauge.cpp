@@ -17,13 +17,13 @@ gauge::gauge(const utki::shared_ref<ruis::context>& c, const tml::forest& desc) 
 		}
 
 		if(p.value == "armFraction"){
-			this->params.armFraction = ruis::get_property_value(p).to_float();
+			this->params.arm_fraction = ruis::get_property_value(p).to_float();
 		}else if(p.value == "startAngle"){
 			auto deg = ruis::get_property_value(p).to_float();
-			this->params.startAngleRad = deg * real(utki::pi) / real(180);
+			this->params.start_angle_rad = utki::deg_to_rad(deg);
 		}else if(p.value == "endAngle"){
 			auto deg = ruis::get_property_value(p).to_float();
-			this->params.endAngleRad = deg * real(utki::pi) / real(180);
+			this->params.end_angle_rad = utki::deg_to_rad(deg);
 		}else if(p.value == "arrowImage"){
 			this->params.arrow = this->context.get().loader.load<ruis::res::image>(ruis::get_property_value(p).string);
 		}else if(p.value == "shadowImage"){
@@ -48,8 +48,9 @@ gauge::gauge(const utki::shared_ref<ruis::context>& c, const tml::forest& desc) 
 
 void gauge::on_lay_out(){
 	ASSERT(this->params.arrow)
+	// TODO: naming convention
 	auto arrowDim = this->params.arrow->dims();
-	real armLength = arrowDim.x() * this->params.armFraction;
+	real armLength = arrowDim.x() * this->params.arm_fraction;
 	
 	if(armLength <= 0){
 		return;
@@ -57,20 +58,20 @@ void gauge::on_lay_out(){
 	
 	auto scale = (std::max(this->rect().d.x(), this->rect().d.y()) / 2) / armLength;
 	
-	this->arrowQuadTexture = this->params.arrow->get(arrowDim * scale).to_shared_ptr();
+	this->arrow_tex = this->params.arrow->get(arrowDim * scale).to_shared_ptr();
 	
 	if(this->params.shadow){
 		// TRACE(<< "this->shadow->dims() * scale = " << this->shadow->dims() * scale << std::endl)
-		this->shadowQuadTexture = this->params.shadow->get(this->params.shadow->dims() * scale).to_shared_ptr();
-		// TRACE(<< "this->shadowQuadTexture->dims() = " << this->shadowQuadTexture->dims() << std::endl)
+		this->shadow_tex = this->params.shadow->get(this->params.shadow->dims() * scale).to_shared_ptr();
+		// TRACE(<< "this->shadow_tex->dims() = " << this->shadow_tex->dims() << std::endl)
 	}
 }
 
 
 void gauge::render(const matrix4& matrix) const {
-	ASSERT(this->arrowQuadTexture)
+	ASSERT(this->arrow_tex)
 	
-	if(!this->arrowQuadTexture->dims.is_positive() || this->params.armFraction <= 0){
+	if(!this->arrow_tex->dims.is_positive() || this->params.arm_fraction <= 0){
 		return;
 	}
 	
@@ -82,30 +83,30 @@ void gauge::render(const matrix4& matrix) const {
 	
 	matrix4 mmm;
 	mmm.set_identity();
-	mmm.rotate(-(this->params.startAngleRad + (this->params.endAngleRad - this->params.startAngleRad) * this->fraction()));
+	mmm.rotate(-(this->params.start_angle_rad + (this->params.end_angle_rad - this->params.start_angle_rad) * this->fraction()));
 	{
-		auto div = this->arrowQuadTexture->dims.x() * this->params.armFraction;
+		auto div = this->arrow_tex->dims.x() * this->params.arm_fraction;
 		ASSERT(div >= 0)
 		mmm.scale(1 / div);
 	}
 	
-	if(this->shadowQuadTexture && this->shadowQuadTexture->dims.is_positive()){
-		auto arrowFraction = this->arrowQuadTexture->dims.x() / this->shadowQuadTexture->dims.x();
+	if(this->shadow_tex && this->shadow_tex->dims.is_positive()){
+		auto arrowFraction = this->arrow_tex->dims.x() / this->shadow_tex->dims.x();
 		
 		const auto shadowOffset = real(0.025f);
 		
 		matrix4 m(matr);
 		m *= matrix4().set_identity().translate(shadowOffset, shadowOffset) * mmm;
-		m.scale(this->shadowQuadTexture->dims);
-		m.translate(-(1 - this->params.armFraction) * arrowFraction - (1 - arrowFraction) / 2, -0.5);
-		this->shadowQuadTexture->render(m);
+		m.scale(this->shadow_tex->dims);
+		m.translate(-(1 - this->params.arm_fraction) * arrowFraction - (1 - arrowFraction) / 2, -0.5);
+		this->shadow_tex->render(m);
 	}
 	
 	{
 		matrix4 m(matr);
 		m *= mmm;
-		m.scale(this->arrowQuadTexture->dims);
-		m.translate(-(1 - this->params.armFraction), -0.5);
-		this->arrowQuadTexture->render(m);
+		m.scale(this->arrow_tex->dims);
+		m.translate(-(1 - this->params.arm_fraction), -0.5);
+		this->arrow_tex->render(m);
 	}
 }
