@@ -20,35 +20,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 /* ================ LICENSE END ================ */
 
 #include <clargs/parser.hpp>
-#include <ruis/container.hpp>
-#include <ruis/layouts/linear_layout.hpp>
+
 #include <ruisapp/application.hpp>
 
+#include "gui.hpp"
+
 using namespace std::string_literals;
+using namespace std::string_view_literals;
 
-namespace {
-utki::shared_ref<ruis::widget> build_root_layout(utki::shared_ref<ruis::context> c)
-{
-	namespace m = ruis::make;
-	using ruis::lp;
-
-	return
-		// clang-format off
-		m::container(
-			c,
-			{
-				.widget_params = {
-					.id = "root"s
-				},
-				.container_params = {
-					.layout = ruis::column_layout::instance
-				}
-			},
-			{}
-		);
-	// clang-format on
+namespace{
+constexpr std::string_view app_name = "carcockpit"sv;
 }
-} // namespace
 
 namespace carcockpit {
 
@@ -57,7 +39,7 @@ class application : public ruisapp::application
 public:
 	application(bool window, std::string_view res_path) :
 		ruisapp::application( //
-			"carcockpit"s,
+			std::string(app_name),
 			[]() {
 				// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
 				ruisapp::window_params wp(r4::vector2<unsigned>(1024, 600));
@@ -71,8 +53,7 @@ public:
 
 		this->gui.context.get().loader.mount_res_pack(*this->get_res_file(papki::as_dir(res_path)));
 
-		auto c = build_root_layout(this->gui.context);
-		this->gui.set_root(c);
+		this->gui.set_root(make_root_layout(this->gui.context));
 	}
 };
 
@@ -80,7 +61,7 @@ const ruisapp::application_factory app_fac([](auto args) {
 	bool window = false;
 
 	// TODO: look in /usr/local/share/carcockpit first?
-	std::string res_path = "/usr/share/carcockpit"s;
+	std::string res_path = utki::cat("/usr/share/"sv, app_name);
 
 	clargs::parser p;
 
@@ -88,7 +69,7 @@ const ruisapp::application_factory app_fac([](auto args) {
 		window = true;
 	});
 
-	p.add("res-path", "resources path, default = /usr/share/carcockpit", [&](std::string_view v) {
+	p.add("res-path", utki::cat("resources path, default = /usr/share/"sv, app_name), [&](std::string_view v) {
 		res_path = v;
 	});
 
