@@ -76,17 +76,12 @@ utki::shared_ref<ruis::widget> carcockpit::make_root_layout(utki::shared_ref<rui
     );
 	// clang-format on
 
-    auto gauge = w.get().try_get_widget_as<ruis::gauge>("gauge");
-    ASSERT(gauge)
-    auto weakGauge = utki::make_weak(gauge);
+    auto& gauge = w.get().get_widget_as<ruis::gauge>("gauge");
     
-    auto slider = w.get().try_get_widget_as<ruis::fraction_widget>("gauge_slider");
-    ASSERT(slider)
-
-    slider->fraction_change_handler = [weakGauge](ruis::fraction_widget& s){
-        if(auto g = weakGauge.lock()){
-            g->set_fraction(s.fraction());
-        }
+    auto& slider = w.get().get_widget_as<ruis::fraction_widget>("gauge_slider");
+    
+    slider.fraction_change_handler = [&g = gauge](ruis::fraction_widget& s){
+        g.set_fraction(s.fraction());
     };
 
     return w;
