@@ -20,8 +20,8 @@ public:
 		
 		real arm_fraction = 1;
 		
-		real start_angle_rad = utki::deg_to_rad(real(200));
-		real end_angle_rad = utki::deg_to_rad(real(-20));
+		real start_angle_rad = 0;
+		real end_angle_rad = 0;
 	};
 
 	struct all_parameters{
