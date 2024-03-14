@@ -24,14 +24,12 @@ utki::shared_ref<ruis::widget> carcockpit::make_root_layout(utki::shared_ref<rui
         },
         {
             // TODO: should be slider, not scroll bar, band is not needed
-            utki::dynamic_reference_cast<ruis::widget>(
-                utki::make_shared<ruis::horizontal_scroll_bar>(
-                    c,
-                    tml::read(R"(
-                        id{gauge_slider}
-                        lp{dx{fill}}
-                    )")
-                )
+            utki::make_shared<ruis::horizontal_scroll_bar>(
+                c,
+                tml::read(R"(
+                    id{gauge_slider}
+                    lp{dx{fill}}
+                )")
             ),
             m::container(
                 c,
@@ -60,25 +58,23 @@ utki::shared_ref<ruis::widget> carcockpit::make_root_layout(utki::shared_ref<rui
                             }
                         }
                     ),
-                    utki::dynamic_reference_cast<ruis::widget>(
-                        m::gauge(
-                            c,
-                            {
-                                .widget_params = {
-                                    .id = "gauge"s,
-                                    .lp = {
-                                        .dims = {lp::fill, lp::fill}
-                                    }
-                                },
-                                .params = {
-                                    .arrow = c.get().loader.load<ruis::res::image>("img_gauge_arrow"),
-                                    .shadow = c.get().loader.load<ruis::res::image>("img_gauge_arrow_shadow"),
-                                    .arm_fraction = 0.75,
-                                    .start_angle_rad = utki::deg_to_rad(225.0),
-                                    .end_angle_rad = utki::deg_to_rad(-45.0)
+                    m::gauge(
+                        c,
+                        {
+                            .widget_params = {
+                                .id = "gauge"s,
+                                .lp = {
+                                    .dims = {lp::fill, lp::fill}
                                 }
+                            },
+                            .params = {
+                                .arrow = c.get().loader.load<ruis::res::image>("img_gauge_arrow"),
+                                .shadow = c.get().loader.load<ruis::res::image>("img_gauge_arrow_shadow"),
+                                .arm_fraction = 0.75,
+                                .start_angle_rad = utki::deg_to_rad(225.0),
+                                .end_angle_rad = utki::deg_to_rad(-45.0)
                             }
-                        )
+                        }
                     )
                 }
             )
