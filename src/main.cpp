@@ -20,7 +20,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 /* ================ LICENSE END ================ */
 
 #include <clargs/parser.hpp>
-
 #include <ruisapp/application.hpp>
 
 #include "gui.hpp"
@@ -28,9 +27,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using namespace std::string_literals;
 using namespace std::string_view_literals;
 
-namespace{
+namespace {
 constexpr std::string_view app_name = "carcockpit"sv;
-}
+} // namespace
 
 namespace carcockpit {
 
