@@ -1,0 +1,31 @@
+Source: carcockpit
+Section: misc
+Priority: extra
+Maintainer: Ivan Gagis <igagis@gmail.com>
+Build-Depends:
+	debhelper (>= 9),
+	dpkg-dev (>=1.17.0),
+	prorab,
+	prorab-extra,
+	myci,
+	clang-tidy,
+	clang-format,
+	libclargs-dev,
+	libruisapp-dev
+Build-Depends-Indep: doxygen
+Standards-Version: 3.9.2
+
+Package: carcockpit
+Section: misc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+	carcockpit-data
+Description: Car cockpit demo app.
+ Demo application of car cockpit GUI.
+
+Package: carcockpit-data
+Section: misc
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Car cockpit demo app.
+ Data files for carcockpit.
