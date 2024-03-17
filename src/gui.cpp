@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "gui.hpp"
 
-#include <ruis/container.hpp>
+#include <ruis/widgets/container.hpp>
 #include <ruis/widgets/label/image.hpp>
 #include <ruis/widgets/slider/scroll_bar.hpp>
 
@@ -58,7 +58,7 @@ utki::shared_ref<ruis::widget> carcockpit::make_root_layout(utki::shared_ref<rui
                 {
                     .widget_params = {
                         .lp = {
-                            .dims = {lp::fill, 0},
+                            .dims = {lp::fill, lp::fill},
                             .weight = 1
                         }
                     },
