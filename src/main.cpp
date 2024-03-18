@@ -56,7 +56,7 @@ public:
 	}
 };
 
-const ruisapp::application_factory app_fac([](auto args) {
+const ruisapp::application_factory app_fac([](auto executable, auto args) {
 	bool window = false;
 
 	// TODO: look in /usr/local/share/carcockpit first?
