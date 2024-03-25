@@ -50,7 +50,7 @@ utki::shared_ref<ruis::widget> carcockpit::make_root_layout(utki::shared_ref<rui
                 c,
                 tml::read(R"(
                     id{gauge_slider}
-                    lp{dx{fill}}
+                    lp{dx{fill}dy{30pp}}
                 )")
             ),
             m::container(
