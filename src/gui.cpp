@@ -126,7 +126,7 @@ utki::shared_ref<ruis::widget> carcockpit::make_root_layout(utki::shared_ref<rui
                                 .id = "car_widget"s,
                                 .lp = {
                                     .dims = {lp::fill, lp::fill},
-                                    .weight = 5
+                                    .weight = 5 // NOLINT(cppcoreguidelines-avoid-magic-numbers)
                                 }
                             }
                         }
