@@ -25,15 +25,20 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <ruis/widgets/label/image.hpp>
 #include <ruis/widgets/slider/scroll_bar.hpp>
 
+#include "car_widget.hpp"
 #include "gauge.hpp"
 
 using namespace std::string_literals;
 
 using namespace carcockpit;
 
+namespace m {
+using namespace ruis::make;
+using namespace carcockpit::make;
+} // namespace m
+
 utki::shared_ref<ruis::widget> carcockpit::make_root_layout(utki::shared_ref<ruis::context> c)
 {
-	namespace m = ruis::make;
 	using ruis::lp;
 
 	// clang-format off
@@ -53,6 +58,7 @@ utki::shared_ref<ruis::widget> carcockpit::make_root_layout(utki::shared_ref<rui
                     lp{dx{fill}dy{30pp}}
                 )")
             ),
+
             m::container(
                 c,
                 {
@@ -63,43 +69,71 @@ utki::shared_ref<ruis::widget> carcockpit::make_root_layout(utki::shared_ref<rui
                         }
                     },
                     .container_params = {
-                        .layout = ruis::layout::pile
+                        .layout = ruis::layout::row
                     }
                 },
                 {
-                    m::image(
+                    m::container(
                         c,
                         {
                             .widget_params = {
                                 .lp = {
-                                    .dims = {lp::fill, lp::fill}
+                                    .dims = {lp::fill, lp::fill},
+                                    .weight = 1
                                 }
                             },
-                            .image_params = {
-                                .img = c.get().loader.load<ruis::res::image>("img_gauge_scale")
+                            .container_params = {
+                                .layout = ruis::layout::pile
                             }
+                        },
+                        {
+                            m::image(
+                                c,
+                                {
+                                    .widget_params = {
+                                        .lp = {
+                                            .dims = {lp::fill, lp::fill}
+                                        }
+                                    },
+                                    .image_params = {
+                                        .img = c.get().loader.load<ruis::res::image>("img_gauge_scale")
+                                    }
+                                }
+                            ),
+                            m::gauge(
+                                c,
+                                {
+                                    .widget_params = {
+                                        .id = "gauge"s,
+                                        .lp = {
+                                            .dims = {lp::fill, lp::fill}
+                                        }
+                                    },
+                                    .params = {
+                                        .arrow = c.get().loader.load<ruis::res::image>("img_gauge_arrow"),
+                                        .shadow = c.get().loader.load<ruis::res::image>("img_gauge_arrow_shadow"),
+                                        .arm_fraction = 0.75, // NOLINT
+                                        .start_angle_rad = utki::deg_to_rad(225.0), // NOLINT
+                                        .end_angle_rad = utki::deg_to_rad(-45.0) // NOLINT
+                                    }
+                                }
+                            )
                         }
                     ),
-                    m::gauge(
-                        c,
+                    m::car_widget(c,
                         {
                             .widget_params = {
-                                .id = "gauge"s,
+                                .id = "car_widget"s,
                                 .lp = {
-                                    .dims = {lp::fill, lp::fill}
+                                    .dims = {lp::fill, lp::fill},
+                                    .weight = 5
                                 }
-                            },
-                            .params = {
-                                .arrow = c.get().loader.load<ruis::res::image>("img_gauge_arrow"),
-                                .shadow = c.get().loader.load<ruis::res::image>("img_gauge_arrow_shadow"),
-                                .arm_fraction = 0.75, // NOLINT
-                                .start_angle_rad = utki::deg_to_rad(225.0), // NOLINT
-                                .end_angle_rad = utki::deg_to_rad(-45.0) // NOLINT
                             }
                         }
                     )
                 }
             )
+
         }
     );
 	// clang-format on
@@ -111,6 +145,10 @@ utki::shared_ref<ruis::widget> carcockpit::make_root_layout(utki::shared_ref<rui
 	slider.fraction_change_handler = [&g = gauge](ruis::fraction_widget& s) {
 		g.set_fraction(s.fraction());
 	};
+
+	auto car = w.get().try_get_widget_as<car_widget>("car_widget");
+
+	c.get().updater.get().start(car, 0);
 
 	return w;
 }
