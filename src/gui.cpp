@@ -56,7 +56,7 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                     .widget_params = {
                         .id = "gauge_slider"s,
                         .lp = {
-                            .dims = {lp::fill, 30_pp}
+                            .dims = {lp::fill, 30_pp} // NOLINT(cppcoreguidelines-avoid-magic-numbers)
                         }
                     },
                     .oriented_params = {
