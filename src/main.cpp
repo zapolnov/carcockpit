@@ -52,7 +52,7 @@ public:
 
 		this->gui.context.get().loader.mount_res_pack(*this->get_res_file(papki::as_dir(res_path)));
 
-		this->gui.set_root(make_root_layout(this->gui.context));
+		this->gui.set_root(make_root_widgets(this->gui.context));
 	}
 };
 
