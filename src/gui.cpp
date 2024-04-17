@@ -39,13 +39,12 @@ using namespace ruis::make;
 using namespace carcockpit::make;
 } // namespace m
 
-utki::shared_ref<ruis::widget> carcockpit::make_root_widgets(utki::shared_ref<ruis::context> c)
+utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref<ruis::context> c)
 {
 	using ruis::lp;
 
 	// clang-format off
-	auto w = m::container(
-        c,
+	auto w = m::key_proxy(c,
         {
             .container_params = {
                 .layout = ruis::layout::column
@@ -139,7 +138,6 @@ utki::shared_ref<ruis::widget> carcockpit::make_root_widgets(utki::shared_ref<ru
                     )
                 }
             )
-
         }
     );
 	// clang-format on
