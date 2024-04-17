@@ -143,7 +143,7 @@ utki::shared_ref<ruis::widget> carcockpit::make_root_layout(utki::shared_ref<rui
 	auto& slider = w.get().get_widget_as<ruis::fraction_widget>("gauge_slider");
 
 	slider.fraction_change_handler = [&g = gauge](ruis::fraction_widget& s) {
-		g.set_fraction(s.fraction());
+		g.set_fraction(s.get_fraction());
 	};
 
 	auto car = w.get().try_get_widget_as<car_widget>("car_widget");
