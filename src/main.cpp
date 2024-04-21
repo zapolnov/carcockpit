@@ -42,6 +42,7 @@ public:
 			[]() {
 				// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
 				ruisapp::window_params wp(r4::vector2<unsigned>(1024, 600));
+				wp.buffers.set(ruisapp::window_params::buffer::depth);
 				return wp;
 			}()
 		)

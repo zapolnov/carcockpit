@@ -21,6 +21,7 @@ else ifeq ($(os),linux)
 endif
 
 this_ldlibs += -lruisapp-opengles-xorg -lpapki -lclargs -ltml -lruis -lutki -lm
+this_ldlibs += `pkg-config --libs glesv2`
 
 $(eval $(prorab-build-app))
 

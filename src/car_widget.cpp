@@ -23,6 +23,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <ratio>
 
+#include <GLES2/gl2.h>
+
 using namespace carcockpit;
 
 car_widget::car_widget(utki::shared_ref<ruis::context> context, all_parameters params) :
@@ -101,15 +103,19 @@ void car_widget::render(const ruis::matrix4& matrix) const
 	ruis::matrix4 matr(matrix);
 	matr.scale(this->rect().d / 2);
 	matr.translate(1, 1);
-	matr.scale(1, -1);
+	matr.scale(1, -1, -1);
 	// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
 	matr.frustum(-2, 2, -1.5, 1.5, 2, 100);
 	matr.translate(0, 0, -4);
 	matr.rotate(this->rot);
 
-	//		glEnable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
+
+	glEnable(GL_DEPTH_TEST);
 
 	this->context.get().renderer.get().shader->pos_tex->render(matr, *this->cube_vao, this->tex->tex());
 
-	//		glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+
+	glEnable(GL_CULL_FACE);
 }
