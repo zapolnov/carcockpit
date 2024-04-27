@@ -33,7 +33,7 @@ class car_widget : public ruis::widget, public ruis::updateable
 
 	ruis::quaternion rot = ruis::quaternion().set_identity();
 
-	std::shared_ptr<ruis::vertex_array> cube_vao;
+	std::shared_ptr<ruis::render::vertex_array> cube_vao;
 
 	unsigned fps = 0;
 	uint32_t fps_sec_counter = 0;

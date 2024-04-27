@@ -74,7 +74,7 @@ car_widget::car_widget(utki::shared_ref<ruis::context> context, all_parameters p
 	this->cube_vao =
 		this->context.get()
 			.renderer.get()
-			.factory->create_vertex_array({pos_vbo, tex_vbo}, cube_indices, ruis::vertex_array::mode::triangles)
+			.factory->create_vertex_array({pos_vbo, tex_vbo}, cube_indices, ruis::render::vertex_array::mode::triangles)
 			.to_shared_ptr();
 
 	this->tex = this->context.get().loader.load<ruis::res::texture>("tex_sample").to_shared_ptr();
