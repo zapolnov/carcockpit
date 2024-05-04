@@ -101,13 +101,13 @@ car_widget::car_widget(utki::shared_ref<ruis::context> context, all_parameters p
 	std::shared_ptr<ModelOBJ> lamba_left_model_obj = std::make_shared<ModelOBJ>();
 	std::shared_ptr<ModelOBJ> lamba_right_model_obj = std::make_shared<ModelOBJ>();
 	// this->car_model_obj = std::make_shared<ModelOBJ>();
-	light_model_obj->import("res/car/monkey.obj");
-	car_model_obj->import("res/car/car3d.obj");
-	// car_model_obj->import("res/test/bake.obj");
-	// car_model_obj->import("res/lamba/lamba.obj");
+	light_model_obj->import("../res/car/monkey.obj");
+	car_model_obj->import("../res/car/car3d.obj");
+	// car_model_obj->import("../res/test/bake.obj");
+	// car_model_obj->import("../res/lamba/lamba.obj");
 
-	lamba_left_model_obj->import("res/lamba/lamba_l.obj");
-	lamba_right_model_obj->import("res/lamba/lamba_r.obj");
+	lamba_left_model_obj->import("../res/lamba/lamba_l.obj");
+	lamba_right_model_obj->import("../res/lamba/lamba_r.obj");
 	lamba_left_model_obj->buildVBOs();
 	lamba_right_model_obj->buildVBOs();
 	light_model_obj->buildVBOs();

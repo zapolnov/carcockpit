@@ -26,7 +26,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <ruis/widgets/base/fraction_widget.hpp>
 #include <ruis/widgets/widget.hpp>
 
-#include "car_view/model_obj.hpp"
+#include <model_obj.hpp>
 #include "car_view/shaders/shader_adv.hpp"
 #include "car_view/shaders/shader_phong.hpp"
 
