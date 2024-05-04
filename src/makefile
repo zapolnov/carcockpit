@@ -69,9 +69,9 @@ $(eval $(prorab-license))
 # install resources
 define this_rules
 install::
-$(.RECIPEPREFIX)$(a)for i in $(patsubst $(d)../res/%,/%,$(shell find $(d)../res -type f -name "*")); do \
+$(.RECIPEPREFIX)$(a)for i in $(patsubst ../res/%,/%,$(shell (cd $(d); find ../res -type f -name "*"))); do \
 		install -d $(DESTDIR)$(PREFIX)/share/$(this_name)$$$${i%/*}; \
-		install -m 644 $(d)res$$$$i $(DESTDIR)$(PREFIX)/share/$(this_name)$$$$i; \
+		install -m 644 $(d)../res$$$$i $(DESTDIR)$(PREFIX)/share/$(this_name)$$$$i; \
 	done
 endef
 $(eval $(this_rules))
