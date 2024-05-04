@@ -349,6 +349,8 @@ void car_widget::render(const ruis::matrix4& matrix) const
 	// glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 
+	glClear(GL_DEPTH_BUFFER_BIT);
+
 	// advanced_s->render(*this->car_vao, mvp, modelview, projection,
 	// this->tex_rust_diffuse->tex(),
 	//  					this->tex_rust_normal->tex(),
