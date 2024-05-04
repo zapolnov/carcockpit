@@ -63,7 +63,7 @@ $(eval $(prorab-run))
 
 this_src_dir := $(this_name)
 $(eval $(prorab-clang-format))
-this_license_file := LICENSE
+this_license_file := ../LICENSE
 $(eval $(prorab-license))
 
 # install resources
