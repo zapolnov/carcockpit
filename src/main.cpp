@@ -22,6 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <clargs/parser.hpp>
 #include <ruisapp/application.hpp>
 
+#include "car_widget.hpp"
 #include "gui.hpp"
 
 using namespace std::string_literals;
@@ -58,6 +59,10 @@ public:
 			if (e.is_down) {
 				if (e.combo.key == ruis::key::escape) {
 					this->quit();
+				} else if (e.combo.key == ruis::key::space) {
+					this->toggleCamera();
+				} else if (e.combo.key == ruis::key::n) {
+					this->toggleNormalMapping();
 				}
 			}
 			return false;
@@ -65,6 +70,28 @@ public:
 
 		this->gui.set_root(std::move(kp));
 	}
+
+	void toggleCamera()
+	{
+		cam_toggle = !cam_toggle;
+		auto car_w = this->gui.get_root().try_get_widget_as<carcockpit::car_widget>("car_widget");
+		if (car_w) {
+			car_w->toggleCamera(cam_toggle);
+		}
+	}
+
+	void toggleNormalMapping()
+	{
+		nm_toggle = !nm_toggle;
+		auto car_w = this->gui.get_root().try_get_widget_as<carcockpit::car_widget>("car_widget");
+		if (car_w) {
+			car_w->setNormalMapping(nm_toggle);
+		}
+	}
+
+private:
+	bool cam_toggle = false;
+	bool nm_toggle = true;
 };
 
 const ruisapp::application_factory app_fac([](auto executable, auto args) {
@@ -72,6 +99,7 @@ const ruisapp::application_factory app_fac([](auto executable, auto args) {
 
 	// TODO: look in /usr/local/share/carcockpit first?
 	std::string res_path = utki::cat("/usr/share/"sv, app_name);
+	// std::string res_path = "res/"s;
 
 	clargs::parser p;
 

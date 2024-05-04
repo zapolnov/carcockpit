@@ -46,9 +46,11 @@ void gauge::on_lay_out()
 	this->arrow_tex = this->params.arrow.get().get(arrow_dim * scale).to_shared_ptr();
 
 	if (this->params.shadow) {
-		// TRACE(<< "this->shadow->dims() * scale = " << this->shadow->dims() * scale << std::endl)
+		// TRACE(<< "this->shadow->dims() * scale = " << this->shadow->dims() *
+		// scale << std::endl)
 		this->shadow_tex = this->params.shadow->get(this->params.shadow->dims() * scale).to_shared_ptr();
-		// TRACE(<< "this->shadow_tex->dims() = " << this->shadow_tex->dims() << std::endl)
+		// TRACE(<< "this->shadow_tex->dims() = " << this->shadow_tex->dims() <<
+		// std::endl)
 	}
 }
 
