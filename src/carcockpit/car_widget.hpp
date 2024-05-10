@@ -22,7 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #pragma once
 
 #include <model_obj.hpp>
-#include <ruis/res/texture.hpp>
+#include <ruis/res/texture_2d.hpp>
 #include <ruis/updateable.hpp>
 #include <ruis/widgets/base/fraction_widget.hpp>
 #include <ruis/widgets/widget.hpp>
@@ -34,18 +34,18 @@ namespace carcockpit {
 
 class car_widget : public ruis::fraction_widget, public ruis::updateable, virtual public ruis::widget
 {
-	std::shared_ptr<ruis::res::texture> tex;
-	std::shared_ptr<ruis::res::texture> tex_test;
+	std::shared_ptr<ruis::res::texture_2d> tex;
+	std::shared_ptr<ruis::res::texture_2d> tex_test;
 
-	std::shared_ptr<ruis::res::texture> tex_car_diffuse;
-	std::shared_ptr<ruis::res::texture> tex_car_normal;
-	std::shared_ptr<ruis::res::texture> tex_car_roughness;
-	// std::shared_ptr<ruis::res::texture> tex_car_opacity;
-	// std::shared_ptr<ruis::res::texture> tex_car_metallic;
+	std::shared_ptr<ruis::res::texture_2d> tex_car_diffuse;
+	std::shared_ptr<ruis::res::texture_2d> tex_car_normal;
+	std::shared_ptr<ruis::res::texture_2d> tex_car_roughness;
+	// std::shared_ptr<ruis::res::texture_2d> tex_car_opacity;
+	// std::shared_ptr<ruis::res::texture_2d> tex_car_metallic;
 
-	std::shared_ptr<ruis::res::texture> tex_rust_diffuse;
-	std::shared_ptr<ruis::res::texture> tex_rust_normal;
-	std::shared_ptr<ruis::res::texture> tex_rust_roughness;
+	std::shared_ptr<ruis::res::texture_2d> tex_rust_diffuse;
+	std::shared_ptr<ruis::res::texture_2d> tex_rust_normal;
+	std::shared_ptr<ruis::res::texture_2d> tex_rust_roughness;
 
 	ruis::quaternion rot = ruis::quaternion().set_identity();
 
