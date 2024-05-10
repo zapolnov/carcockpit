@@ -90,11 +90,13 @@ car_widget::car_widget(utki::shared_ref<ruis::context> context, all_parameters p
 
 	this->tex_car_diffuse = this->context.get().loader.load<ruis::res::texture_2d>("tex_car_diffuse1").to_shared_ptr();
 	this->tex_car_normal = this->context.get().loader.load<ruis::res::texture_2d>("tex_car_normal1").to_shared_ptr();
-	this->tex_car_roughness = this->context.get().loader.load<ruis::res::texture_2d>("tex_car_roughness1").to_shared_ptr();
+	this->tex_car_roughness =
+		this->context.get().loader.load<ruis::res::texture_2d>("tex_car_roughness1").to_shared_ptr();
 
 	this->tex_rust_diffuse = this->context.get().loader.load<ruis::res::texture_2d>("tex_car_diffuse").to_shared_ptr();
 	this->tex_rust_normal = this->context.get().loader.load<ruis::res::texture_2d>("tex_car_normal").to_shared_ptr();
-	this->tex_rust_roughness = this->context.get().loader.load<ruis::res::texture_2d>("tex_car_roughness").to_shared_ptr();
+	this->tex_rust_roughness =
+		this->context.get().loader.load<ruis::res::texture_2d>("tex_car_roughness").to_shared_ptr();
 
 	std::shared_ptr<ModelOBJ> light_model_obj = std::make_shared<ModelOBJ>();
 	std::shared_ptr<ModelOBJ> car_model_obj = std::make_shared<ModelOBJ>();
