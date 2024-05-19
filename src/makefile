@@ -69,6 +69,7 @@ this_cxxflags += -isystem model_obj
 this_ldlibs += $(this__libmodel_obj) $(this__libruis_render)
 
 this_ldlibs += -lruisapp-opengles-xorg -lpapki -lclargs -ltml -lruis -lutki -lm -l ruis-render-opengles
+this_ldlibs += -l jsondom
 this_ldlibs += `pkg-config --libs glesv2`
 
 $(eval $(prorab-build-app))

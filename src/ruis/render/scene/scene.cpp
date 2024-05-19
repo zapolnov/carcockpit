@@ -21,6 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "scene.hpp"
 
+#include <jsondom/dom.hpp>
 #include <utki/string.hpp>
 #include <utki/util.hpp>
 
@@ -84,6 +85,26 @@ utki::shared_ref<scene> ruis::render::read_gltf(const papki::file& fi, ruis::ren
 		throw std::invalid_argument(
 			utki::cat("read_gltf(): unexpected first chunk type: ", chunk_type, ", expected JSON")
 		);
+	}
+
+	if (p.size() < chunk_length) {
+		throw std::invalid_argument("read_gltf(): glTF file too short");
+	}
+
+	auto json_span = p.subspan(0, chunk_length);
+	auto json = jsondom::read(json_span);
+
+	ASSERT(json.is_object())
+
+	for (const auto& kv : json.object()) {
+		std::cout << "key = " << kv.first << ", value type = " << unsigned(kv.second.get_type()) << std::endl;
+	}
+
+	p = p.subspan(chunk_length);
+
+	// read binary chunk
+	{
+		// TODO: bin_span
 	}
 
 	// TODO:
