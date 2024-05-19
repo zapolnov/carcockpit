@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites name='' tests='1' disabled='0' errors='0' failures='1' skipped='0' time='0'>
-	<testsuite name='scene' tests='1' disabled='0' failures='1' errors='0' skipped='0'>
-		<testcase name='basic_read' status='failed' time='0'>
-			<failure message='/home/ivan/prj/carcockpit/tests/unit/src/scene.cpp:14: error: check(false)'/>
-		</testcase>
-	</testsuite>
-</testsuites>
