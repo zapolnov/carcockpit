@@ -37,6 +37,9 @@ this_no_install := true
 
 $(eval $(prorab-build-lib))
 
+this_src_dir := ruis
+$(eval $(prorab-clang-format))
+
 
 # ===============================
 # ========= carcockpit ==========

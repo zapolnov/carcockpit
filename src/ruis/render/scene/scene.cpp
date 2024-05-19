@@ -21,10 +21,73 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "scene.hpp"
 
+#include <utki/string.hpp>
+#include <utki/util.hpp>
+
+using namespace std::string_view_literals;
+
 using namespace ruis::render;
 
 utki::shared_ref<scene> ruis::render::read_gltf(const papki::file& fi, ruis::render::render_factory& rf)
 {
+	auto gltf = fi.load();
+
+	constexpr auto gltf_header_size = 4;
+
+	if (gltf.size() < gltf_header_size) {
+		throw std::invalid_argument("read_gltf(): file too short for glTF header");
+	}
+
+	ASSERT(gltf.size() >= gltf_header_size)
+	if (auto header_sv = utki::make_string_view(utki::make_span(gltf.data(), gltf_header_size)); header_sv != "glTF"sv)
+	{
+		throw std::invalid_argument(utki::cat("read_gltf(): file header is not 'glTF': ", header_sv));
+	}
+
+	constexpr auto num_expected_fields_after_header = 4;
+	if (auto es = num_expected_fields_after_header * sizeof(uint32_t) + gltf_header_size; gltf.size() < es) {
+		throw std::invalid_argument(utki::cat("read_gltf(): glTF file is too short: ", es));
+	}
+
+	auto p = gltf.data();
+	p += gltf_header_size;
+
+	auto version = utki::deserialize32le(p);
+	p += sizeof(uint32_t);
+
+	constexpr auto expected_gltf_version = 2;
+	if (version != expected_gltf_version) {
+		throw std::invalid_argument(utki::cat("read_gltf(): glTF file version is not as expected: ", version));
+	}
+
+	auto gltf_length = utki::deserialize32le(p);
+	p += sizeof(uint32_t);
+
+	if (gltf_length != gltf.size()) {
+		throw std::invalid_argument(
+			utki::cat("read_gltf(): glTF file size ", gltf.size(), " does not match length ", gltf_length)
+		);
+	}
+
+	auto chunk_length = utki::deserialize32le(p);
+	p += sizeof(uint32_t);
+
+	if (chunk_length == 0) {
+		throw std::invalid_argument("read_gltf(): chunk length = 0");
+	}
+
+	constexpr auto chunk_type_length = 4;
+	auto chunk_type = utki::make_string_view(utki::make_span(p, chunk_type_length));
+	p += chunk_type_length;
+
+	if (chunk_type != "JSON"sv) {
+		throw std::invalid_argument(
+			utki::cat("read_gltf(): unexpected first chunk type: ", chunk_type, ", expected JSON")
+		);
+	}
+
+	// auto
+
 	// TODO:
 
 	return utki::make_shared<scene>();
