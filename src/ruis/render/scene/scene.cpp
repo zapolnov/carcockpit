@@ -22,7 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "scene.hpp"
 
 #include <jsondom/dom.hpp>
-#include <utki/deserializator.hpp>
+#include <utki/deserializer.hpp>
 #include <utki/string.hpp>
 #include <utki/util.hpp>
 
@@ -34,7 +34,7 @@ utki::shared_ref<scene> ruis::render::read_gltf(const papki::file& fi, ruis::ren
 {
 	auto gltf = fi.load();
 
-	utki::deserializator d(gltf);
+	utki::deserializer d(gltf);
 
 	constexpr auto gltf_header_size = 4;
 	if (auto header_sv = d.read_string(gltf_header_size); header_sv != "glTF"sv) {
