@@ -74,8 +74,6 @@ this_ldlibs += `pkg-config --libs glesv2`
 
 $(eval $(prorab-build-app))
 
-$(eval $(call prorab-depend, $(prorab_this_name), $(this__libmodel_obj) $(this__libruis_render)))
-
 this_run_name := app
 this_test_cmd := $(prorab_this_name) --window --res-path=../res
 this_test_deps := $(prorab_this_name)
