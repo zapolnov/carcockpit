@@ -1,7 +1,9 @@
 include $(config_dir)base/base.mk
 
-this_cxxflags += -O3
+# TODO: set optimization back to -O3 when Debian Bookworm GCC is fixed
+this_cxxflags += -O2
 
+# TODO: enable lint
 # this_lint_cmd = $(prorab_lint_cmd_clang_tidy)
 
 # WORKAROUND: on ubuntu jammy dpkg-buildpackage passes -ffat-lto-objects compilation flag
