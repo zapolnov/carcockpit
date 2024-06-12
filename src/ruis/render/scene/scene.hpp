@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include <ruis/render/renderer.hpp>
+#include <ruis/render/factory.hpp>
 
 #include "node.hpp"
 
@@ -33,6 +33,6 @@ public:
 	std::vector<utki::shared_ref<node>> nodes;
 };
 
-utki::shared_ref<scene> read_gltf(const papki::file& fi, ruis::render::render_factory& rf);
+utki::shared_ref<scene> read_gltf(const papki::file& fi, ruis::render::factory& rf);
 
 } // namespace ruis::render

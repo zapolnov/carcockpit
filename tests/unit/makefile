@@ -11,7 +11,7 @@ this_cxxflags += -isystem ../../src/
 this__libruis_render := ../../src/out/$(c)/libruis_render.a
 this_ldlibs += $(this__libruis_render)
 
-this_ldlibs += -l tst -l utki -l papki -l ruis-render-opengles
+this_ldlibs += -l tst -l utki -l papki -l ruis-render-null
 this_ldlibs += -l jsondom
 
 this_no_install := true

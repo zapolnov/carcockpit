@@ -30,7 +30,7 @@ using namespace std::string_view_literals;
 
 using namespace ruis::render;
 
-utki::shared_ref<scene> ruis::render::read_gltf(const papki::file& fi, ruis::render::render_factory& rf)
+utki::shared_ref<scene> ruis::render::read_gltf(const papki::file& fi, ruis::render::factory& rf)
 {
 	auto gltf = fi.load();
 
