@@ -22,3 +22,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "mesh.hpp"
 
 using namespace ruis::render;
+
+mesh::mesh(std::vector<utki::shared_ref<primitive>> primitives, std::string name) :
+	primitives(std::move(primitives)),
+	name(std::move(name))
+{}
+
+primitive::primitive(utki::shared_ref<ruis::render::vertex_array> vao, utki::shared_ref<material> material_v) :
+	vao(std::move(vao)),
+	material_v(std::move(material_v))
+{}

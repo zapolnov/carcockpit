@@ -25,8 +25,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <ruis/widgets/label/image.hpp>
 #include <ruis/widgets/slider/slider.hpp>
 
-#include "car_widget.hpp"
 #include "gauge.hpp"
+#include "scene_view.hpp"
 
 using namespace std::string_literals;
 
@@ -44,7 +44,7 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
 	using ruis::lp;
 
 	// clang-format off
-	auto w = m::key_proxy(c,
+	auto kp = m::key_proxy(c,
         {
             .container_params = {
                 .layout = ruis::layout::column
@@ -125,44 +125,73 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                             )
                         }
                     ),
-                    m::car_widget(c,
+                    m::scene_view(c,
                         {
                             .widget_params = {
-                                .id = "car_widget"s,
+                                .id = "scene_view_1"s,
                                 .lp = {
                                     .dims = {lp::fill, lp::fill},
                                     .weight = 5 // NOLINT(cppcoreguidelines-avoid-magic-numbers)
                                 },
-                                .clip=true
+                                .clip = true,
+                                .depth = true
                             }
-                            // ,
-                            // .params = {
-                            //             .diffuse = c.get().loader.load<ruis::res::image>("img_gauge_arrow"),
-                            //             .specular = c.get().loader.load<ruis::res::image>("img_gauge_arrow"),
-                            //             .roughness = c.get().loader.load<ruis::res::image>("img_gauge_arrow_shadow"),
-                            //             .normal = c.get().loader.load<ruis::res::image>("img_gauge_arrow_shadow")
-                            //         }
+                            ,
+                            .scene_params = {
+                                .file = "../res/samples_gltf/spray.glb"s,
+                                // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
+                                .scaling_factor = 10.0f,
+                                // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
+                                .camera_target = ruis::vec3(1, 1, 1),
+                                .smooth_navigation_orbit = true,
+                                .smooth_navigation_zoom = true,
+                                .orbit_angle_upper_limit = utki::pi / 4,
+		                        .orbit_angle_lower_limit = utki::pi / 4,
+                                .environment_cube = c.get().loader.load<ruis::res::texture_cube>("tex_cube_env_castle").to_shared_ptr()                               
+                            }
+                        }
+                    ),
+                    m::scene_view(c,
+                        {
+                            .widget_params = {
+                                .id = "scene_view_2"s,
+                                .lp = {
+                                    .dims = {lp::fill, lp::fill},
+                                    .weight = 5 // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+                                },
+                                .clip = true,
+                                .depth = true
+                            }
+                            ,
+                            .scene_params = {
+                                .file = "../res/samples_gltf/camera.glb"s,
+                                // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
+                                .scaling_factor = 10.0f,
+                                // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
+                                .camera_target = ruis::vec3(-1, -1, -1),
+                                .smooth_navigation_orbit = false,
+                                .smooth_navigation_zoom = false,
+                            }
                         }
                     )
                 }
             )
         }
     );
-	// clang-format on
 
-	auto& gauge = w.get().get_widget_as<ruis::gauge>("gauge");
-	auto& slider = w.get().get_widget_as<ruis::fraction_widget>("gauge_slider");
-	auto& car_widget = w.get().get_widget_as<carcockpit::car_widget>("car_widget");
 
-	slider.fraction_change_handler = [&cw = car_widget, &g = gauge](ruis::fraction_widget& s) {
+	auto& gauge = kp.get().get_widget_as<ruis::gauge>("gauge");
+	auto& slider = kp.get().get_widget_as<ruis::fraction_widget>("gauge_slider");
+
+	slider.fraction_change_handler = [&g = gauge](ruis::fraction_widget& s) {
 		g.set_fraction(s.get_fraction());
-		// cw.set_rotation(s.fraction());
-		cw.set_fraction(s.get_fraction());
 	};
 
-	auto car = w.get().try_get_widget_as<carcockpit::car_widget>("car_widget");
+	auto viewer1 = kp.get().try_get_widget_as<carcockpit::scene_view>("scene_view_1");
+	auto viewer2 = kp.get().try_get_widget_as<carcockpit::scene_view>("scene_view_2");
 
-	c.get().updater.get().start(car, 0);
+	c.get().updater.get().start(viewer1, 0);
+	c.get().updater.get().start(viewer2, 0);
 
-	return w;
+	return kp;
 }

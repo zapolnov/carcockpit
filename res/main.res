@@ -54,3 +54,60 @@ tex_rust_normal{
 	file {plate/normal.jpg}  mipmap{linear}
 }
 
+tex_cam_diffuse{
+	file {camera/diffuse.jpg}  mipmap{linear}
+}
+tex_cam_roughness{
+	file {camera/arm.jpg}  mipmap{linear}
+}
+tex_cam_normal{
+	file {camera/normal.jpg}  mipmap{linear}
+}
+
+tex_spray_diffuse{
+	file {spray/diffuse.jpg}  mipmap{linear}
+}
+tex_spray_normal{
+	file {spray/normal.jpg}  mipmap{linear}
+}
+tex_spray_arm{
+	file {spray/arm.jpg}  mipmap{linear}
+}
+
+texture_default_black{
+	file {default/texture_default_black.png}  mipmap{linear}
+}
+
+texture_default_white{
+	file {default/texture_default_white.png}  mipmap{linear}
+}
+
+texture_default_normal{
+	file {default/texture_default_normal.png}  mipmap{linear}
+}
+
+tex_cube_env_hata{
+	file_px{envs/hata/px.png}
+	file_nx{envs/hata/nx.png}
+	file_py{envs/hata/ny.png}
+	file_ny{envs/hata/py.png}
+	file_pz{envs/hata/pz.png}
+	file_nz{envs/hata/nz.png}
+
+	min_filter{linear}
+	mag_filter{linear}
+	mipmap{nearest}
+}
+
+tex_cube_env_castle{
+	file_px{envs/castle/px.jpg}
+	file_nx{envs/castle/nx.jpg}
+	file_py{envs/castle/ny.jpg}
+	file_ny{envs/castle/py.jpg}
+	file_pz{envs/castle/pz.jpg}
+	file_nz{envs/castle/nz.jpg}
+
+	min_filter{linear}
+	mag_filter{linear}
+	mipmap{nearest}
+}

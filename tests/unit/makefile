@@ -13,12 +13,15 @@ this_ldlibs += $(this__libruis_render)
 
 this_ldlibs += -l tst -l utki -l papki -l ruis-render-null
 this_ldlibs += -l jsondom
+this_ldlibs += -l rasterimage
+this_ldlibs += -l m
+this_ldlibs += -l ruisapp-opengles-xorg # TODO: remove when move gltf to ruis
 
 this_no_install := true
 
 $(eval $(prorab-build-app))
 
-this_test_cmd := $(prorab_this_name) --jobs=auto --junit-out=junit.xml
+this_test_cmd := $(prorab_this_name) --jobs=auto --junit-out=out/junit.xml
 this_test_deps := $(prorab_this_name)
 this_test_ld_path := ../../src/out/$(c)
 

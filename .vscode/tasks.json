@@ -2,6 +2,15 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "build_no_lint",
+            "type": "shell",
+            "command": "make lint=off",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build"
+        },
+        {
             "label": "build",
             "type": "shell",
             "command": "make",
@@ -34,11 +43,17 @@
             "group": "build"
         },
         {
+            "label": "run-app-no-lint",
+            "type": "shell",
+            "command": "make run-app lint=off",
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
             "label": "run-app",
             "type": "shell",
             "command": "make run-app",
             "problemMatcher": [],
-            "dependsOn": "build",
             "group": "build"
         },
         {
@@ -46,7 +61,6 @@
             "type": "shell",
             "command": "make run-app config=dbg",
             "problemMatcher": [],
-            "dependsOn": "build_dbg",
             "group": "build"
         },
         {

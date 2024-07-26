@@ -21,66 +21,55 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "scene.hpp"
 
-#include <jsondom/dom.hpp>
-#include <utki/deserializer.hpp>
-#include <utki/string.hpp>
-#include <utki/util.hpp>
-
-using namespace std::string_view_literals;
+#include <chrono>
 
 using namespace ruis::render;
 
-utki::shared_ref<scene> ruis::render::read_gltf(const papki::file& fi, ruis::render::factory& rf)
+std::shared_ptr<light> scene::get_primary_light()
 {
-	auto gltf = fi.load();
+	if (this->lights.size() >= 1)
+		return lights[0].to_shared_ptr();
 
-	utki::deserializer d(gltf);
-
-	constexpr auto gltf_header_size = 4;
-	if (auto header_sv = d.read_string(gltf_header_size); header_sv != "glTF"sv) {
-		throw std::invalid_argument(utki::cat("read_gltf(): file header is not 'glTF': ", header_sv));
-	}
-
-	auto version = d.read_uint32_le();
-	constexpr auto expected_gltf_version = 2;
-	if (version != expected_gltf_version) {
-		throw std::invalid_argument(utki::cat("read_gltf(): glTF file version is not as expected: ", version));
-	}
-
-	auto gltf_length = d.read_uint32_le();
-	if (gltf_length != gltf.size()) {
-		throw std::invalid_argument(
-			utki::cat("read_gltf(): glTF file size ", gltf.size(), " does not match length ", gltf_length)
-		);
-	}
-
-	auto chunk_length = d.read_uint32_le();
-	if (chunk_length == 0) {
-		throw std::invalid_argument("read_gltf(): chunk length = 0");
-	}
-
-	constexpr auto chunk_type_length = 4;
-	if (auto chunk_type = d.read_string(chunk_type_length); chunk_type != "JSON"sv) {
-		throw std::invalid_argument(
-			utki::cat("read_gltf(): unexpected first chunk type: ", chunk_type, ", expected JSON")
-		);
-	}
-
-	auto json_span = d.read_span(chunk_length);
-	auto json = jsondom::read(json_span);
-
-	ASSERT(json.is_object())
-
-	for (const auto& kv : json.object()) {
-		std::cout << "key = " << kv.first << ", value type = " << unsigned(kv.second.get_type()) << std::endl;
-	}
-
-	// read binary chunk
-	{
-		// TODO: bin_span
-	}
-
-	// TODO:
-
-	return utki::make_shared<scene>();
+	return nullptr;
 }
+
+std::shared_ptr<light> scene::get_secondary_light()
+{
+	if (this->lights.size() >= 2)
+		return lights[1].to_shared_ptr();
+
+	return nullptr;
+}
+
+void scene::update(uint32_t dt)
+{
+	time += dt;
+	[[maybe_unused]] float ft = static_cast<float>(time) / std::milli::den;
+	[[maybe_unused]] float fdt = static_cast<float>(dt) / std::milli::den;
+}
+
+ruis::mat4 camera::get_projection_matrix(ruis::real aspect_ratio)
+{
+	ruis::mat4 projection;
+	projection.set_identity();
+	projection.set_perspective(fovy, aspect_ratio, near, far);
+	return projection;
+}
+
+ruis::mat4 camera::get_view_matrix()
+{
+	ruis::mat4 view;
+	view.set_identity();
+	view.set_look_at(pos, target, up);
+	return view;
+}
+
+ruis::vec3 camera::to_view_coords(ruis::vec3 vec)
+{
+	return get_view_matrix() * vec;
+}
+
+light::light(ruis::vec4 pos, ruis::vec3 intensity) :
+	pos(pos),
+	intensity(intensity)
+{}

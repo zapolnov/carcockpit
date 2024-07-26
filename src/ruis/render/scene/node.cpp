@@ -22,3 +22,21 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "node.hpp"
 
 using namespace ruis::render;
+
+node::node(std::shared_ptr<mesh> mesh_v, std::string name, const trs& transformation) :
+	mesh_v(std::move(mesh_v)),
+	name(std::move(name)),
+	transformation(transformation)
+{}
+
+ruis::mat4 node::get_transformation_matrix() const
+{
+	ruis::mat4 transformation_matrix;
+
+	transformation_matrix.set_identity();
+	transformation_matrix.translate(transformation.translation);
+	transformation_matrix.rotate(transformation.rotation);
+	transformation_matrix.scale(transformation.scale);
+
+	return transformation_matrix;
+}

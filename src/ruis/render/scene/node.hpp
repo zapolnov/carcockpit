@@ -29,27 +29,38 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <ruis/config.hpp>
 
 #include "mesh.hpp"
+#include "scene.hpp"
 
 namespace ruis::render {
+
+struct trs {
+	ruis::vec3 translation;
+	ruis::quaternion rotation;
+	ruis::vec3 scale;
+};
+
+constexpr trs transformation_identity{
+	{0.0f, 0.0f, 0.0f},
+	{0.0f, 0.0f, 0.0f, 1.0f},
+	{1.0f, 1.0f, 1.0f}
+};
+
+class scene;
 
 class node
 {
 public:
+	std::shared_ptr<mesh> mesh_v;
 	std::string name;
-
-	// TODO: add extras as JSON?
-
-	utki::shared_ref<mesh> mesh_v;
+	trs transformation;
 
 	std::vector<utki::shared_ref<node>> children;
 
-	struct trs {
-		ruis::vec3 translation;
-		ruis::quaternion rotation;
-		ruis::vec3 scale;
-	};
+	ruis::mat4 get_transformation_matrix() const;
+	// TODO: consider support for transformnation in form of a matrix which comes from GLTF file, e.g.
+	// std::variant<ruis::mat4, trs> transformation;
 
-	std::variant<ruis::mat4, trs> transformation;
+	node(std::shared_ptr<mesh> mesh_v, std::string name, const trs& transformation = transformation_identity);
 };
 
 } // namespace ruis::render
