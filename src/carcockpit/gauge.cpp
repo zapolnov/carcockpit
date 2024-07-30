@@ -73,7 +73,7 @@ void gauge::render(const matrix4& matrix) const
 
 	{
 		ruis::real angle_range_length = this->params.end_angle_rad - this->params.start_angle_rad;
-		auto arrow_rotation = ruis::quat(-(this->params.start_angle_rad + angle_range_length * this->get_fraction()));
+		auto arrow_rotation = ruis::quat(this->params.start_angle_rad + angle_range_length * this->get_fraction());
 		mmm.rotate(arrow_rotation);
 	}
 

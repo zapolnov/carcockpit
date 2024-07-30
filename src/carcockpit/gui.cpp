@@ -118,8 +118,8 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                                         .arrow = c.get().loader.load<ruis::res::image>("img_gauge_arrow"),
                                         .shadow = c.get().loader.load<ruis::res::image>("img_gauge_arrow_shadow"),
                                         .arm_fraction = 0.75, // NOLINT
-                                        .start_angle_rad = utki::deg_to_rad(225.0), // NOLINT
-                                        .end_angle_rad = utki::deg_to_rad(-45.0) // NOLINT
+                                        .start_angle_rad = utki::deg_to_rad(-225.0), // NOLINT
+                                        .end_angle_rad = utki::deg_to_rad(45.0) // NOLINT
                                     }
                                 }
                             )
