@@ -26,7 +26,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using namespace ruis;
 
 gauge::gauge(utki::shared_ref<ruis::context> c, all_parameters p) :
-	widget(std::move(c), {.widget_params = std::move(p.widget_params)}),
+	widget( //
+		std::move(c),
+	 	std::move(p.layout_params),
+		std::move(p.widget_params)
+	),
 	blending_widget(this->context, std::move(p.blending_params)),
 	fraction_widget(this->context, {}),
 	params(std::move(p.params))

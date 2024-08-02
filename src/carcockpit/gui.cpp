@@ -21,9 +21,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "gui.hpp"
 
-#include <ruis/widgets/container.hpp>
-#include <ruis/widgets/label/image.hpp>
-#include <ruis/widgets/slider/slider.hpp>
+#include <ruis/widget/container.hpp>
+#include <ruis/widget/label/image.hpp>
+#include <ruis/widget/slider/slider.hpp>
 
 #include "gauge.hpp"
 #include "scene_view.hpp"
@@ -53,11 +53,11 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
         {
             m::slider(c,
                 {
+                    .layout_params = {
+                        .dims = {lp::fill, 30_pp} // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+                    },
                     .widget_params = {
-                        .id = "gauge_slider"s,
-                        .lp = {
-                            .dims = {lp::fill, 30_pp} // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-                        }
+                        .id = "gauge_slider"s
                     },
                     .oriented_params = {
                         .vertical = false
@@ -67,11 +67,9 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
             m::container(
                 c,
                 {
-                    .widget_params = {
-                        .lp = {
-                            .dims = {lp::fill, lp::fill},
-                            .weight = 1
-                        }
+                    .layout_params = {
+                        .dims = {lp::fill, lp::fill},
+                        .weight = 1
                     },
                     .container_params = {
                         .layout = ruis::layout::row
@@ -81,11 +79,9 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                     m::container(
                         c,
                         {
-                            .widget_params = {
-                                .lp = {
-                                    .dims = {lp::fill, lp::fill},
-                                    .weight = 1
-                                }
+                            .layout_params = {
+                                .dims = {lp::fill, lp::fill},
+                                .weight = 1
                             },
                             .container_params = {
                                 .layout = ruis::layout::pile
@@ -95,10 +91,8 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                             m::image(
                                 c,
                                 {
-                                    .widget_params = {
-                                        .lp = {
-                                            .dims = {lp::fill, lp::fill}
-                                        }
+                                    .layout_params = {
+                                        .dims = {lp::fill, lp::fill}
                                     },
                                     .image_params = {
                                         .img = c.get().loader.load<ruis::res::image>("img_gauge_scale")
@@ -108,11 +102,11 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                             m::gauge(
                                 c,
                                 {
+                                    .layout_params = {
+                                        .dims = {lp::fill, lp::fill}
+                                    },
                                     .widget_params = {
-                                        .id = "gauge"s,
-                                        .lp = {
-                                            .dims = {lp::fill, lp::fill}
-                                        }
+                                        .id = "gauge"s
                                     },
                                     .params = {
                                         .arrow = c.get().loader.load<ruis::res::image>("img_gauge_arrow"),
@@ -127,12 +121,12 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                     ),
                     m::scene_view(c,
                         {
+                            .layout_params = {
+                                .dims = {lp::fill, lp::fill},
+                                .weight = 5 // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+                            },
                             .widget_params = {
                                 .id = "scene_view_1"s,
-                                .lp = {
-                                    .dims = {lp::fill, lp::fill},
-                                    .weight = 5 // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-                                },
                                 .clip = true,
                                 .depth = true
                             }
@@ -153,12 +147,12 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                     ),
                     m::scene_view(c,
                         {
+                            .layout_params = {
+                                .dims = {lp::fill, lp::fill},
+                                .weight = 5 // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+                            },
                             .widget_params = {
                                 .id = "scene_view_2"s,
-                                .lp = {
-                                    .dims = {lp::fill, lp::fill},
-                                    .weight = 5 // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-                                },
                                 .clip = true,
                                 .depth = true
                             }

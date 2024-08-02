@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include <ruis/widgets/proxy/key_proxy.hpp>
+#include <ruis/widget/proxy/key_proxy.hpp>
 
 namespace carcockpit {
 

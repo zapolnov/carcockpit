@@ -24,8 +24,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <ruis/res/texture_2d.hpp>
 #include <ruis/res/texture_cube.hpp>
 #include <ruis/updateable.hpp>
-#include <ruis/widgets/base/fraction_widget.hpp>
-#include <ruis/widgets/widget.hpp>
+#include <ruis/widget/base/fraction_widget.hpp>
+#include <ruis/widget/widget.hpp>
 
 #include "../ruis/render/scene/scene.hpp"
 #include "../ruis/render/scene/scene_renderer.hxx"
@@ -83,6 +83,7 @@ private:
 
 public:
 	struct all_parameters {
+		ruis::layout_parameters layout_params;
 		ruis::widget::parameters widget_params;
 		parameters scene_params;
 	};
@@ -98,7 +99,10 @@ public:
 };
 
 namespace make {
-inline utki::shared_ref<scene_view> scene_view(utki::shared_ref<ruis::context> c, scene_view::all_parameters params)
+inline utki::shared_ref<scene_view> scene_view( //
+	utki::shared_ref<ruis::context> c,
+	scene_view::all_parameters params
+)
 {
 	return utki::make_shared<carcockpit::scene_view>(std::move(c), std::move(params));
 }
