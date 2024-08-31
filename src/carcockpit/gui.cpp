@@ -41,8 +41,6 @@ using namespace carcockpit::make;
 
 utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref<ruis::context> c)
 {
-	using ruis::lp;
-
 	// clang-format off
 	auto kp = m::key_proxy(c,
         {
@@ -54,7 +52,7 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
             m::slider(c,
                 {
                     .layout_params = {
-                        .dims = {lp::fill, 30_pp} // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+                        .dims = {ruis::dim::fill, 30_pp} // NOLINT(cppcoreguidelines-avoid-magic-numbers)
                     },
                     .widget_params = {
                         .id = "gauge_slider"s
@@ -68,7 +66,7 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                 c,
                 {
                     .layout_params = {
-                        .dims = {lp::fill, lp::fill},
+                        .dims = {ruis::dim::fill, ruis::dim::fill},
                         .weight = 1
                     },
                     .container_params = {
@@ -80,7 +78,7 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                         c,
                         {
                             .layout_params = {
-                                .dims = {lp::fill, lp::fill},
+                                .dims = {ruis::dim::fill, ruis::dim::fill},
                                 .weight = 1
                             },
                             .container_params = {
@@ -92,7 +90,7 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                                 c,
                                 {
                                     .layout_params = {
-                                        .dims = {lp::fill, lp::fill}
+                                        .dims = {ruis::dim::fill, ruis::dim::fill}
                                     },
                                     .image_params = {
                                         .img = c.get().loader.load<ruis::res::image>("img_gauge_scale")
@@ -103,7 +101,7 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                                 c,
                                 {
                                     .layout_params = {
-                                        .dims = {lp::fill, lp::fill}
+                                        .dims = {ruis::dim::fill, ruis::dim::fill}
                                     },
                                     .widget_params = {
                                         .id = "gauge"s
@@ -122,7 +120,7 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                     m::scene_view(c,
                         {
                             .layout_params = {
-                                .dims = {lp::fill, lp::fill},
+                                .dims = {ruis::dim::fill, ruis::dim::fill},
                                 .weight = 5 // NOLINT(cppcoreguidelines-avoid-magic-numbers)
                             },
                             .widget_params = {
@@ -148,7 +146,7 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                     m::scene_view(c,
                         {
                             .layout_params = {
-                                .dims = {lp::fill, lp::fill},
+                                .dims = {ruis::dim::fill, ruis::dim::fill},
                                 .weight = 5 // NOLINT(cppcoreguidelines-avoid-magic-numbers)
                             },
                             .widget_params = {
@@ -181,11 +179,11 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
 		g.set_fraction(s.get_fraction());
 	};
 
-	auto viewer1 = kp.get().try_get_widget_as<carcockpit::scene_view>("scene_view_1");
-	auto viewer2 = kp.get().try_get_widget_as<carcockpit::scene_view>("scene_view_2");
+	auto& viewer1 = kp.get().get_widget_as<carcockpit::scene_view>("scene_view_1");
+	auto& viewer2 = kp.get().get_widget_as<carcockpit::scene_view>("scene_view_2");
 
-	c.get().updater.get().start(viewer1, 0);
-	c.get().updater.get().start(viewer2, 0);
+	c.get().updater.get().start(utki::make_shared_from(viewer1), 0);
+	c.get().updater.get().start(utki::make_shared_from(viewer2), 0);
 
 	return kp;
 }

@@ -89,8 +89,8 @@ texture_default_normal{
 tex_cube_env_hata{
 	file_px{envs/hata/px.png}
 	file_nx{envs/hata/nx.png}
-	file_py{envs/hata/ny.png}
-	file_ny{envs/hata/py.png}
+	file_py{envs/hata/py.png}
+	file_ny{envs/hata/ny.png}
 	file_pz{envs/hata/pz.png}
 	file_nz{envs/hata/nz.png}
 
@@ -102,8 +102,8 @@ tex_cube_env_hata{
 tex_cube_env_castle{
 	file_px{envs/castle/px.jpg}
 	file_nx{envs/castle/nx.jpg}
-	file_py{envs/castle/ny.jpg}
-	file_ny{envs/castle/py.jpg}
+	file_py{envs/castle/py.jpg}
+	file_ny{envs/castle/ny.jpg}
 	file_pz{envs/castle/pz.jpg}
 	file_nz{envs/castle/nz.jpg}
 
