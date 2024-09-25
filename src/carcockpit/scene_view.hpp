@@ -47,11 +47,13 @@ class scene_view : public ruis::updateable, public ruis::widget
 	std::shared_ptr<ruis::render::camera> camera_v;
 
 	ruis::vec3 camera_position{default_camera_position_top};
-	ruis::vec3 camera_attractor{default_camera_position_front
+	ruis::vec3 camera_attractor{
+		default_camera_position_front
 	}; // camera attractor is a mechanism to provide smooth camra movement. On update() camera always moves a bit
 	   // towards th attractor
 
-	ruis::real camera_transition_duration{default_camera_transition_duration
+	ruis::real camera_transition_duration{
+		default_camera_transition_duration
 	}; // This is an abstract coefficient. Actually technically this could be close to logarithm of time needed for the
 	   // camera to reach camera attractor. This is for the mechanism of the simpliest implementation of smooth movement
 	   // of camera
