@@ -1,3 +1,9 @@
+carcockpit (0.0.4) unstable; urgency=medium
+
+  * wayland
+
+ -- Ivan Gagis <igagis@gmail.com>  Thu, 26 Sep 2024 21:21:51 +0300
+
 carcockpit (0.0.3) unstable; urgency=medium
 
   * update
