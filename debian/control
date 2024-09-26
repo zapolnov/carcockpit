@@ -21,7 +21,15 @@ Build-Depends:
 Build-Depends-Indep: doxygen
 Standards-Version: 3.9.2
 
-Package: carcockpit
+Package: carcockpit-opengles-xorg
+Section: misc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+	carcockpit-data
+Description: Car cockpit demo app.
+ Demo application of car cockpit GUI.
+
+Package: carcockpit-opengles-wayland
 Section: misc
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
