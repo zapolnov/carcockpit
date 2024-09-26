@@ -50,6 +50,13 @@
             "group": "build"
         },
         {
+            "label": "run-app-ogles-wayland-no-lint",
+            "type": "shell",
+            "command": "make run-app-opengles-wayland lint=off",
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
             "label": "run-app-ogles-xorg",
             "type": "shell",
             "command": "make run-app-opengles-xorg",
@@ -60,6 +67,13 @@
             "label": "run-app-ogles-xorg-dbg",
             "type": "shell",
             "command": "make run-app-opengles-xorg config=dbg",
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "run-app-ogles-wayland-dbg",
+            "type": "shell",
+            "command": "make run-app-opengles-wayland config=dbg",
             "problemMatcher": [],
             "group": "build"
         },
