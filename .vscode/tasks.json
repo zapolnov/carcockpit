@@ -43,23 +43,23 @@
             "group": "build"
         },
         {
-            "label": "run-app-no-lint",
+            "label": "run-app-ogles-xorg-no-lint",
             "type": "shell",
-            "command": "make run-app lint=off",
+            "command": "make run-app-opengles-xorg lint=off",
             "problemMatcher": [],
             "group": "build"
         },
         {
-            "label": "run-app",
+            "label": "run-app-ogles-xorg",
             "type": "shell",
-            "command": "make run-app",
+            "command": "make run-app-opengles-xorg",
             "problemMatcher": [],
             "group": "build"
         },
         {
-            "label": "run-app-dbg",
+            "label": "run-app-ogles-xorg-dbg",
             "type": "shell",
-            "command": "make run-app config=dbg",
+            "command": "make run-app-opengles-xorg config=dbg",
             "problemMatcher": [],
             "group": "build"
         },

@@ -19,41 +19,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 /* ================ LICENSE END ================ */
 
-#include <clargs/parser.hpp>
 #include <ruisapp/application.hpp>
 
 #include "application.hpp"
-#include "gui.hpp"
-
-using namespace std::string_literals;
-using namespace std::string_view_literals;
 
 namespace carcockpit {
 
 const ruisapp::application_factory app_fac([](auto executable, auto args) {
-	bool window = false;
-
-	// TODO: look in /usr/local/share/carcockpit first?
-	std::string res_path = utki::cat("/usr/share/"sv, application::app_name);
-	// std::string res_path = "res/"s;
-
-	clargs::parser p;
-
-	p.add("window", "run in window mode", [&]() {
-		window = true;
-	});
-
-	p.add(
-		"res-path",
-		utki::cat("resources path, default = /usr/share/"sv, application::app_name),
-		[&](std::string_view v) {
-			res_path = v;
-		}
-	);
-
-	p.parse(args);
-
-	return std::make_unique<application>(window, res_path);
+	return create_application(executable, args);
 });
 
 } // namespace carcockpit

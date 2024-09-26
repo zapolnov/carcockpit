@@ -21,6 +21,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "application.hpp"
 
+#include <clargs/parser.hpp>
+
 #include "gui.hpp"
 #include "scene_view.hpp"
 
@@ -56,4 +58,31 @@ application::application(bool window, std::string_view res_path) :
 	};
 
 	this->gui.set_root(std::move(kp));
+}
+
+std::unique_ptr<application> carcockpit::create_application(std::string_view executable, utki::span<const char*> args)
+{
+	bool window = false;
+
+	// TODO: look in /usr/local/share/carcockpit first?
+	std::string res_path = utki::cat("/usr/share/"sv, application::app_name);
+	// std::string res_path = "res/"s;
+
+	clargs::parser p;
+
+	p.add("window", "run in window mode", [&]() {
+		window = true;
+	});
+
+	p.add(
+		"res-path",
+		utki::cat("resources path, default = /usr/share/"sv, application::app_name),
+		[&](std::string_view v) {
+			res_path = v;
+		}
+	);
+
+	p.parse(args);
+
+	return std::make_unique<application>(window, res_path);
 }
