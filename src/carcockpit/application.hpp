@@ -34,6 +34,8 @@ namespace carcockpit {
 class application : public ruisapp::application
 {
 public:
+	const std::string res_path;
+
 	application(bool window, std::string_view res_path);
 
 	static constexpr std::string_view app_name = "carcockpit"sv;

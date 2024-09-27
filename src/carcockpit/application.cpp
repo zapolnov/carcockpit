@@ -38,13 +38,14 @@ application::application(bool window, std::string_view res_path) :
 			wp.buffers.set(ruisapp::window_params::buffer::depth);
 			return wp;
 		}()
-	)
+	),
+	res_path(papki::as_dir(res_path))
 {
 	this->set_fullscreen(!window);
 
 	this->gui.init_standard_widgets(*this->get_res_file());
 
-	this->gui.context.get().loader.mount_res_pack(*this->get_res_file(papki::as_dir(res_path)));
+	this->gui.context.get().loader.mount_res_pack(*this->get_res_file(papki::as_dir(this->res_path)));
 
 	auto kp = make_root_widgets(this->gui.context);
 

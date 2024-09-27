@@ -25,6 +25,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <ruis/widget/label/image.hpp>
 #include <ruis/widget/slider/slider.hpp>
 
+#include "application.hpp"
 #include "gauge.hpp"
 #include "scene_view.hpp"
 
@@ -130,7 +131,7 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                             }
                             ,
                             .scene_params = {
-                                .file = "../res/samples_gltf/spray.glb"s,
+                                .file = utki::cat(carcockpit::application::inst().res_path, "samples_gltf/spray.glb"),
                                 // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
                                 .scaling_factor = 10.0f,
                                 // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
@@ -156,7 +157,7 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                             }
                             ,
                             .scene_params = {
-                                .file = "../res/samples_gltf/camera.glb"s,
+                                .file = utki::cat(carcockpit::application::inst().res_path, "samples_gltf/camera.glb"),
                                 // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
                                 .scaling_factor = 10.0f,
                                 // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
