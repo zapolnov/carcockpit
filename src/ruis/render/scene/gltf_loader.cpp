@@ -243,8 +243,8 @@ utki::shared_ref<accessor> gltf_loader::read_accessor(const jsondom::value& acce
 			new_accessor.get().data = index_attribute_buffer;
 			new_accessor.get().ibo = factory_v.create_index_buffer(utki::make_span(index_attribute_buffer));
 		}
-		// TODO: in case GLTF says that index type is 32 bit, but still provides less than 65536 vertices, then there is
-		// no reason to use 32 bit index, we can convert it to 16 bit index
+		// TODO: memory optimization: in case GLTF says that index type is 32 bit, but still provides less than 65536
+		// vertices, then there is no reason to use 32 bit index, we can convert it to 16 bit index
 	}
 
 	return new_accessor;

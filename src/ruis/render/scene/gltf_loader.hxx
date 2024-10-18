@@ -38,7 +38,7 @@ struct accessor;
 struct image_l;
 struct sampler_l;
 class material;
-using vertex_data_t = std::variant<
+using vertex_data_type = std::variant<
 	std::vector<float>,
 	std::vector<ruis::vec2>,
 	std::vector<ruis::vec3>,
@@ -130,6 +130,7 @@ struct accessor {
 	uint32_t count;
 	uint32_t byte_offset;
 
+	// TODO: remove explicit enum item values? Those do not seem to be used explicitly anywhere
 	enum class type {
 		undefined = 0,
 		scalar = 1,
@@ -154,7 +155,7 @@ struct accessor {
 	std::shared_ptr<ruis::render::vertex_buffer> vbo;
 	std::shared_ptr<ruis::render::index_buffer> ibo;
 
-	vertex_data_t data;
+	vertex_data_type data;
 
 	accessor(
 		utki::shared_ref<buffer_view> bv,
