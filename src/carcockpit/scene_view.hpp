@@ -73,7 +73,7 @@ class scene_view :
 public:
 	struct parameters {
 		std::string file;
-		float scaling_factor{1.0f};
+		float scaling_factor = 1.0f; // TODO: why not ruis::real?
 		ruis::vec3 camera_target{0, 0, 0};
 		bool smooth_navigation_orbit = true;
 		bool smooth_navigation_zoom = true;
