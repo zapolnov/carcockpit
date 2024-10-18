@@ -33,6 +33,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace ruis::render {
 
+// TODO: rename to transrotscale
 struct trs {
 	ruis::vec3 translation;
 	ruis::quaternion rotation;
