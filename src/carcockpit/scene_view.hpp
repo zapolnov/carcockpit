@@ -40,26 +40,28 @@ constexpr ruis::vec3 default_camera_position_front{0, 1.5, 7};
 constexpr ruis::vec3 default_camera_position_top{0, 9, 0};
 constexpr float default_camera_transition_duration{0.1};
 
-class scene_view : public ruis::updateable, public ruis::widget
+class scene_view :
+	public ruis::updateable, //
+	public ruis::widget
 {
 	std::shared_ptr<ruis::render::scene> scene_v;
 	std::shared_ptr<ruis::render::scene_renderer> scene_renderer_v;
 	std::shared_ptr<ruis::render::camera> camera_v;
 
-	ruis::vec3 camera_position{default_camera_position_top};
-	ruis::vec3 camera_attractor{
-		default_camera_position_front
-	}; // camera attractor is a mechanism to provide smooth camra movement. On update() camera always moves a bit
-	   // towards th attractor
+	ruis::vec3 camera_position = default_camera_position_top;
 
-	ruis::real camera_transition_duration{
-		default_camera_transition_duration
-	}; // This is an abstract coefficient. Actually technically this could be close to logarithm of time needed for the
-	   // camera to reach camera attractor. This is for the mechanism of the simpliest implementation of smooth movement
-	   // of camera
+	// camera attractor is a mechanism to provide smooth camra movement. On update() camera always moves a bit
+	// towards the attractor
+	ruis::vec3 camera_attractor = default_camera_position_front;
 
-	bool mouse_is_orbiting = false; // It is set to true when the user clicks inside the widget and drags, starts camera
-									// rotation (orbit) procedure
+	// This is an abstract coefficient. Actually technically this could be close to logarithm of time needed for the
+	// camera to reach camera attractor. This is for the mechanism of the simpliest implementation of smooth movement
+	// of camera
+	ruis::real camera_transition_duration = default_camera_transition_duration;
+
+	// It is set to true when the user clicks inside the widget and drags, starts camera
+	// rotation (orbit) procedure
+	bool mouse_is_orbiting = false;
 
 	ruis::vec2 mouse_changeview_start;
 	ruis::vec3 camera_changeview_start;
@@ -90,7 +92,10 @@ public:
 		parameters scene_params;
 	};
 
-	scene_view(utki::shared_ref<ruis::context> context, all_parameters params);
+	scene_view(
+		utki::shared_ref<ruis::context> context, //
+		all_parameters params
+	);
 
 	void render(const ruis::matrix4& matrix) const override;
 	void update(uint32_t dt) override;
@@ -101,12 +106,15 @@ public:
 };
 
 namespace make {
-inline utki::shared_ref<scene_view> scene_view( //
-	utki::shared_ref<ruis::context> c,
+inline utki::shared_ref<scene_view> scene_view(
+	utki::shared_ref<ruis::context> c, //
 	scene_view::all_parameters params
 )
 {
-	return utki::make_shared<carcockpit::scene_view>(std::move(c), std::move(params));
+	return utki::make_shared<carcockpit::scene_view>(
+		std::move(c), //
+		std::move(params)
+	);
 }
 } // namespace make
 
