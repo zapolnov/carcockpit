@@ -33,14 +33,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace ruis::render {
 
-// TODO: rename to transrotscale
-struct trs {
+struct trs_transformation {
 	ruis::vec3 translation;
 	ruis::quaternion rotation;
 	ruis::vec3 scale;
 };
 
-constexpr trs transformation_identity{
+constexpr trs_transformation identity_trs_transformation{
 	.translation = {0.0f, 0.0f, 0.0f},
 	.rotation = {0.0f, 0.0f, 0.0f, 1.0f},
 	.scale = {1.0f, 1.0f, 1.0f}
@@ -53,7 +52,7 @@ class node
 public:
 	std::shared_ptr<mesh> mesh_v;
 	std::string name;
-	trs transformation;
+	trs_transformation transformation;
 
 	std::vector<utki::shared_ref<node>> children;
 
@@ -61,7 +60,11 @@ public:
 	// TODO: consider support for transformnation in form of a matrix which comes from GLTF file, e.g.
 	// std::variant<ruis::mat4, trs> transformation;
 
-	node(std::shared_ptr<mesh> mesh_v, std::string name, const trs& transformation = transformation_identity);
+	node(
+		std::shared_ptr<mesh> mesh_v, //
+		std::string name,
+		const trs_transformation& transformation = identity_trs_transformation
+	);
 };
 
 } // namespace ruis::render

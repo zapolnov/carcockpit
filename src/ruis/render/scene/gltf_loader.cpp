@@ -318,7 +318,7 @@ utki::shared_ref<node> gltf_loader::read_node(const jsondom::value& node_json)
 	constexpr ruis::vec3 default_translation{0, 0, 0};
 	constexpr ruis::quat default_rotation{1, 0, 0, 0};
 
-	trs transformation = transformation_identity;
+	trs_transformation transformation = identity_trs_transformation;
 
 	std::string name = read_string(node_json, "name");
 

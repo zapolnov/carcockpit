@@ -23,7 +23,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using namespace ruis::render;
 
-node::node(std::shared_ptr<mesh> mesh_v, std::string name, const trs& transformation) :
+node::node(
+	std::shared_ptr<mesh> mesh_v, //
+	std::string name,
+	const trs_transformation& transformation
+) :
 	mesh_v(std::move(mesh_v)),
 	name(std::move(name)),
 	transformation(transformation)
