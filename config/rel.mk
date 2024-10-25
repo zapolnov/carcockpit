@@ -3,14 +3,13 @@ include $(config_dir)base/base.mk
 # TODO: set optimization back to -O3 when Debian Bookworm GCC is fixed
 this_cxxflags += -O2
 
-this_lint_cmd :=
-
 # WORKAROUND: on ubuntu jammy dpkg-buildpackage passes -ffat-lto-objects compilation flag
 # which is not supported by clang and clang-tidy complains about it:
 # error: optimization flag '-ffat-lto-objects' is not supported [clang-diagnostic-ignored-optimization-argument]
 # Thus, suppress this warning.
 this_cxxflags += -Wno-ignored-optimization-argument
 
+# TODO: is this needed?
 this_cxxflags += -isystem /usr/include/c++/11
 this_cxxflags += -isystem /usr/include/x86_64-linux-gnu/c++/11/
 
