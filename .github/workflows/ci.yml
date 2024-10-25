@@ -146,6 +146,8 @@ jobs:
         run: myci-deb-install-build-deps.sh
       - name: build
         run: |
+          # clang-tidy is too old on arm32/arm64, disable the lint
+          ${{ ((matrix.labels[0] == 'arm32' || matrix.labels[0] == 'arm64') && 'export lint=off') || '' }}
           dpkg-buildpackage --unsigned-source --unsigned-changes
           mv ../*.*deb .
       - name: upload deb packages to artifacts
