@@ -64,7 +64,8 @@ jobs:
       matrix:
         include:
           - {os: debian, codename: bookworm, image_owner: }
-          # - {os: debian, codename: bookworm, image_owner: , labels: [arm32,docker]}
+          - {os: debian, codename: bookworm, image_owner: , labels: [arm32,docker]}
+          - {os: debian, codename: bookworm, image_owner: , labels: [arm64,docker]}
     runs-on: ${{ (matrix.labels == '' && 'ubuntu-latest') || matrix.labels }}
     container: ${{ matrix.image_owner }}${{ matrix.os }}:${{ matrix.codename }}
     name: sanitizer - ${{ matrix.image_owner }}${{ matrix.os }}:${{ matrix.codename }} | ${{ matrix.labels[0] }}
@@ -92,7 +93,7 @@ jobs:
       - name: install deps
         run: myci-deb-install-build-deps.sh
       - name: build
-        run: make config=asan
+        run: make config=asan ${{ ((matrix.labels[0] == 'arm32' || matrix.labels[0] == 'arm64') && 'lint=off') || '' }}
       - name: test
         run: make config=asan test
 ##### deb linux #####
@@ -146,8 +147,6 @@ jobs:
         run: myci-deb-install-build-deps.sh
       - name: build
         run: |
-          # clang-tidy is too old on arm32/arm64, disable the lint
-          ${{ ((matrix.labels[0] == 'arm32' || matrix.labels[0] == 'arm64') && 'export lint=off') || '' }}
           dpkg-buildpackage --unsigned-source --unsigned-changes
           mv ../*.*deb .
       - name: upload deb packages to artifacts
