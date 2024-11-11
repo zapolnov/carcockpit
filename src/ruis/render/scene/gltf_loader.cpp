@@ -627,7 +627,10 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 	std::vector<ruis::vec3> bitangents; // texture y-axis
 
 	tangents.resize(num_vertices);
+	std::fill(tangents.begin(), tangents.end(), ruis::vec3(0, 0, 0));
+
 	bitangents.resize(num_vertices);
+	std::fill(bitangents.begin(), bitangents.end(), ruis::vec3(0, 0, 0));
 
 	// Calculate the vertex tangents and bitangents.
 	for (uint32_t i = 0; i < num_triangles; ++i) {
@@ -651,7 +654,7 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 
 		// Calculate the triangle face tangent and bitangent.
 
-		float det = tex_edge_1.cross(tex_edge_2);
+		auto det = tex_edge_1.cross(tex_edge_2);
 
 		constexpr auto epsilon = ruis::real(1e-6f);
 
@@ -662,6 +665,7 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 		if (abs(det) >= epsilon) {
 			auto det_reciprocal = ruis::real(1) / det;
 
+			// TODO: figure out what is happening here and refactor with vector ops
 			tangent[0] = (tex_edge_2[1] * edge1[0] - tex_edge_1[1] * edge2[0]) * det_reciprocal;
 			tangent[1] = (tex_edge_2[1] * edge1[1] - tex_edge_1[1] * edge2[1]) * det_reciprocal;
 			tangent[2] = (tex_edge_2[1] * edge1[2] - tex_edge_1[1] * edge2[2]) * det_reciprocal;
@@ -670,8 +674,6 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 			bitangent[1] = (-tex_edge_2[0] * edge1[1] + tex_edge_1[0] * edge2[1]) * det_reciprocal;
 			bitangent[2] = (-tex_edge_2[0] * edge1[2] + tex_edge_1[0] * edge2[2]) * det_reciprocal;
 		}
-
-		// TODO: figure out what is happening here and refactor with vector ops
 
 		// Accumulate the tangents and bitangents.
 		tangents[index0] += tangent;
@@ -688,18 +690,17 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 	for (uint32_t i = 0; i < num_vertices; ++i) {
 		// Gram-Schmidt orthogonalize tangent with normal.
 
-		float n_dot_t = normals[i] * tangents[i]; // dot product
+		auto n_dot_t = normals[i] * tangents[i]; // dot product
 
 		tangents[i] -= normals[i] * n_dot_t;
 
-		// Normalize the tangent.
 		tangents[i].normalize();
 
 		ruis::vec3 bitangent_other = normals[i].cross(tangents[i]);
 
-		float b_dot_b = bitangent_other * bitangents[i];
+		auto b_dot_b = bitangent_other * bitangents[i];
 
-		float sign = (b_dot_b < 0.0f) ? -1.0f : 1.0f;
+		auto sign = b_dot_b < ruis::real(0) ? ruis::real(-1) : ruis::real(1);
 
 		bitangents[i] = bitangent_other * sign;
 	}
