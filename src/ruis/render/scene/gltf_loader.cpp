@@ -623,8 +623,8 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 	const auto& texcoords = std::get<std::vector<ruis::vec2>>(texcoord_0_accessor.get().data);
 	const auto& normals = std::get<std::vector<ruis::vec3>>(normal_accessor.get().data);
 
-	std::vector<ruis::vec3> tangents;
-	std::vector<ruis::vec3> bitangents;
+	std::vector<ruis::vec3> tangents; // texture x-axis
+	std::vector<ruis::vec3> bitangents; // texture y-axis
 
 	tangents.resize(total_vertices);
 	bitangents.resize(total_vertices);
