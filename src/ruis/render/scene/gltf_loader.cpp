@@ -615,8 +615,8 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 	utki::shared_ref<accessor> normal_accessor
 )
 {
-	uint32_t total_vertices = position_accessor.get().count;
-	uint32_t total_triangles = index_accessor.get().count / 3;
+	uint32_t num_vertices = position_accessor.get().count;
+	uint32_t num_triangles = index_accessor.get().count / 3;
 
 	const auto& indices = std::get<std::vector<tp_type>>(index_accessor.get().data);
 	const auto& positions = std::get<std::vector<ruis::vec3>>(position_accessor.get().data);
@@ -626,53 +626,66 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 	std::vector<ruis::vec3> tangents; // texture x-axis
 	std::vector<ruis::vec3> bitangents; // texture y-axis
 
-	tangents.resize(total_vertices);
-	bitangents.resize(total_vertices);
+	tangents.resize(num_vertices);
+	bitangents.resize(num_vertices);
 
 	// Calculate the vertex tangents and bitangents.
-	for (uint32_t i = 0; i < total_triangles; ++i) {
-		ruis::vec3 edge1 = positions[indices[i * 3 + 1]] - positions[indices[i * 3 + 0]];
-		ruis::vec3 edge2 = positions[indices[i * 3 + 2]] - positions[indices[i * 3 + 0]];
+	for (uint32_t i = 0; i < num_triangles; ++i) {
+		auto index0 = indices[i * 3 + 0];
+		auto index1 = indices[i * 3 + 1];
+		auto index2 = indices[i * 3 + 2];
 
-		ruis::vec2 tex_edge_1 = texcoords[indices[i * 3 + 1]] - texcoords[indices[i * 3 + 0]];
-		ruis::vec2 tex_edge_2 = texcoords[indices[i * 3 + 2]] - texcoords[indices[i * 3 + 0]];
+		auto p0 = positions[index0];
+		auto p1 = positions[index1];
+		auto p2 = positions[index2];
+
+		auto t0 = texcoords[index0];
+		auto t1 = texcoords[index1];
+		auto t2 = texcoords[index2];
+
+		auto edge1 = p1 - p0;
+		auto edge2 = p2 - p0;
+
+		auto tex_edge_1 = t1 - t0;
+		auto tex_edge_2 = t2 - t0;
 
 		// Calculate the triangle face tangent and bitangent.
-		float det = tex_edge_1[0] * tex_edge_2[1] - tex_edge_2[0] * tex_edge_1[1];
 
-		constexpr float epsilon = 1e-6f;
+		float det = tex_edge_1.cross(tex_edge_2);
 
-		ruis::vec4 tangent = {1.0f, 0.0f, 0.0f, 0.0f};
-		ruis::vec3 bitangent = {0.0f, 1.0f, 0.0f};
+		constexpr auto epsilon = ruis::real(1e-6f);
+
+		auto tangent = ruis::vec3(1, 0, 0);
+		auto bitangent = ruis::vec3(0, 1, 0);
 
 		using std::abs;
 		if (abs(det) >= epsilon) {
-			det = 1.0f / det;
+			auto det_reciprocal = ruis::real(1) / det;
 
-			tangent[0] = (tex_edge_2[1] * edge1[0] - tex_edge_1[1] * edge2[0]) * det;
-			tangent[1] = (tex_edge_2[1] * edge1[1] - tex_edge_1[1] * edge2[1]) * det;
-			tangent[2] = (tex_edge_2[1] * edge1[2] - tex_edge_1[1] * edge2[2]) * det;
+			tangent[0] = (tex_edge_2[1] * edge1[0] - tex_edge_1[1] * edge2[0]) * det_reciprocal;
+			tangent[1] = (tex_edge_2[1] * edge1[1] - tex_edge_1[1] * edge2[1]) * det_reciprocal;
+			tangent[2] = (tex_edge_2[1] * edge1[2] - tex_edge_1[1] * edge2[2]) * det_reciprocal;
 
-			bitangent[0] = (-tex_edge_2[0] * edge1[0] + tex_edge_1[0] * edge2[0]) * det;
-			bitangent[1] = (-tex_edge_2[0] * edge1[1] + tex_edge_1[0] * edge2[1]) * det;
-			bitangent[2] = (-tex_edge_2[0] * edge1[2] + tex_edge_1[0] * edge2[2]) * det;
+			bitangent[0] = (-tex_edge_2[0] * edge1[0] + tex_edge_1[0] * edge2[0]) * det_reciprocal;
+			bitangent[1] = (-tex_edge_2[0] * edge1[1] + tex_edge_1[0] * edge2[1]) * det_reciprocal;
+			bitangent[2] = (-tex_edge_2[0] * edge1[2] + tex_edge_1[0] * edge2[2]) * det_reciprocal;
 		}
 
 		// TODO: figure out what is happening here and refactor with vector ops
 
 		// Accumulate the tangents and bitangents.
-		tangents[indices[i * 3 + 0]] += tangent;
-		bitangents[indices[i * 3 + 0]] += bitangent;
+		tangents[index0] += tangent;
+		bitangents[index0] += bitangent;
 
-		tangents[indices[i * 3 + 1]] += tangent;
-		bitangents[indices[i * 3 + 1]] += bitangent;
+		tangents[index1] += tangent;
+		bitangents[index1] += bitangent;
 
-		tangents[indices[i * 3 + 2]] += tangent;
-		bitangents[indices[i * 3 + 2]] += bitangent;
+		tangents[index2] += tangent;
+		bitangents[index2] += bitangent;
 	}
 
 	// Orthogonalize and normalize the vertex tangents.
-	for (uint32_t i = 0; i < total_vertices; ++i) {
+	for (uint32_t i = 0; i < num_vertices; ++i) {
 		// Gram-Schmidt orthogonalize tangent with normal.
 
 		float n_dot_t = normals[i] * tangents[i]; // dot product
