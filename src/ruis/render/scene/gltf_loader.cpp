@@ -629,34 +629,24 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 	tangents.resize(total_vertices);
 	bitangents.resize(total_vertices);
 
-	ruis::vec2 tex_edge_1 = {0.0f, 0.0f};
-	ruis::vec2 tex_edge_2 = {0.0f, 0.0f};
-
-	ruis::vec3 edge1 = {0.0f, 0.0f, 0.0f};
-	ruis::vec3 edge2 = {0.0f, 0.0f, 0.0f};
-
-	ruis::vec3 bitangent = {0.0f, 0.0f, 0.0f};
-
-	ruis::vec4 tangent = {0.0f, 0.0f, 0.0f, 0.0f};
-
 	// Calculate the vertex tangents and bitangents.
 	for (uint32_t i = 0; i < total_triangles; ++i) {
-		edge1 = positions[indices[i * 3 + 1]] - positions[indices[i * 3 + 0]];
-		edge2 = positions[indices[i * 3 + 2]] - positions[indices[i * 3 + 0]];
+		ruis::vec3 edge1 = positions[indices[i * 3 + 1]] - positions[indices[i * 3 + 0]];
+		ruis::vec3 edge2 = positions[indices[i * 3 + 2]] - positions[indices[i * 3 + 0]];
 
-		tex_edge_1 = texcoords[indices[i * 3 + 1]] - texcoords[indices[i * 3 + 0]];
-		tex_edge_2 = texcoords[indices[i * 3 + 2]] - texcoords[indices[i * 3 + 0]];
+		ruis::vec2 tex_edge_1 = texcoords[indices[i * 3 + 1]] - texcoords[indices[i * 3 + 0]];
+		ruis::vec2 tex_edge_2 = texcoords[indices[i * 3 + 2]] - texcoords[indices[i * 3 + 0]];
 
 		// Calculate the triangle face tangent and bitangent.
 		float det = tex_edge_1[0] * tex_edge_2[1] - tex_edge_2[0] * tex_edge_1[1];
 
 		constexpr float epsilon = 1e-6f;
 
+		ruis::vec4 tangent = {1.0f, 0.0f, 0.0f, 0.0f};
+		ruis::vec3 bitangent = {0.0f, 1.0f, 0.0f};
+
 		using std::abs;
-		if (abs(det) < epsilon) {
-			tangent = {1.0f, 0.0f, 0.0f, 0.0f};
-			bitangent = {0.0f, 1.0f, 0.0f};
-		} else {
+		if (abs(det) >= epsilon) {
 			det = 1.0f / det;
 
 			tangent[0] = (tex_edge_2[1] * edge1[0] - tex_edge_1[1] * edge2[0]) * det;
