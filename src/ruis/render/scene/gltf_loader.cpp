@@ -709,23 +709,19 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 
 	// Orthogonalize and normalize the vertex tangents.
 	for (uint32_t i = 0; i < num_vertices; ++i) {
-		// Gram-Schmidt orthogonalize tangent with normal.
+		// Tangent and bitangent are not necessarily ortogonal to each other, but those have to be
+		// ortogonal to the normal.
 
-		auto n_dot_t = normals[i] * tangents[i]; // dot product
+		// Ortogonalize the tangent and bitangent to the normal.
 
-		tangents[i] -= normals[i] * n_dot_t;
+		tangents[i] -= normals[i].dot(tangents[i]) * normals[i];
+		bitangents[i] -= normals[i].dot(bitangents[i]) * normals[i];
 
 		tangents[i].normalize();
+		bitangents[i].normalize();
 
-		ruis::vec3 bitangent_other = normals[i].cross(tangents[i]);
-
-		// The triangle in texture space can be wound in different direction than in object space,
-		// so we need to flip bitangent direction in that case to make normals from normal map still point
-		// towards face's normal direction.
-		auto b_dot_b = bitangent_other * bitangents[i];
-		auto sign = b_dot_b < ruis::real(0) ? ruis::real(-1) : ruis::real(1);
-
-		bitangents[i] = bitangent_other * sign;
+		// TODO: The triangle in texture space can be wound in different direction than in object space,
+		// need to flip the tangent basis to make normals from normal map point towards triangle normal direction.
 	}
 
 	auto tangents_vbo = factory_v.create_vertex_buffer(tangents);
