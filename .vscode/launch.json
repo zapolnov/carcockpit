@@ -8,7 +8,7 @@
 			"name": "(gdb) app",
 			"type": "cppdbg",
 			"request": "launch",
-			"program": "${workspaceFolder}/src/out/dbg/carcockpit",
+			"program": "${workspaceFolder}/src/out/dbg/carcockpit-opengles-xorg",
 			"args": ["--window", "--res-path=../res"],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}/src",

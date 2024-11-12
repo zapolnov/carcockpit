@@ -652,27 +652,49 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 		auto tex_edge1 = t1 - t0;
 		auto tex_edge2 = t2 - t0;
 
-		// Calculate the triangle face tangent and bitangent.
+		// Calculate the triangle tangent and bitangent.
+		//
+		// We want to map vectors (1, 0) and (0, 1) from texture space to 3d space (to tangent and bitangent vectors).
+		//
+		// vec2 te1, te2 : triangle edges in texture space
+		// vec3 e1, e2 : triangle edges in 3d space
+		//
+		// Vectors (1, 0) and (0, 1) as a linear combination of te1 and te2:
+		//
+		// (1, 0) = te1 * a11 + te2 * a21
+		// (0, 1) = te1 * a12 + te2 * a22
+		//
+		// We need to solve these equations for a11, a12, a21, a22. The system of equations can be written in matrix
+		// form:
+		//
+		// | te1.x te2.x | * | a11 a12 | = | 1 0 |        <->        T * A = I
+		// | te1.y te2.y |   | a21 a22 |   | 0 1 |
+		//
+		// Solving this matrix equation is actually finding a right inverse matrix A for matrix T.
+		//
+		// Then, tangent and bitangent vectors are linear combinations of e1 and e2 with same aX coefficients.
+		//
+		// tangent = e1 * a11 + e2 * a21
+		// bitangnet = e1 * a12 + e2 * a22
+		//
 
-		auto det = tex_edge1.cross(tex_edge2);
+		auto t_matrix = r4::matrix<ruis::real, 2, 2>(
+							tex_edge1, // row 0
+							tex_edge2 // row 1
+		)
+							.transpose(); // rows become columns
 
-		constexpr auto epsilon = ruis::real(1e-6f);
+		constexpr auto epsilon = ruis::real(1e-5f);
 
 		auto tangent = ruis::vec3(1, 0, 0);
 		auto bitangent = ruis::vec3(0, 1, 0);
 
 		using std::abs;
-		if (abs(det) >= epsilon) {
-			auto det_reciprocal = ruis::real(1) / det;
+		if (abs(t_matrix.det()) >= epsilon) {
+			auto a_matrix = t_matrix.inv();
 
-			// TODO: figure out what is happening here and refactor with vector ops
-			tangent[0] = (tex_edge2[1] * edge1[0] - tex_edge1[1] * edge2[0]) * det_reciprocal;
-			tangent[1] = (tex_edge2[1] * edge1[1] - tex_edge1[1] * edge2[1]) * det_reciprocal;
-			tangent[2] = (tex_edge2[1] * edge1[2] - tex_edge1[1] * edge2[2]) * det_reciprocal;
-
-			bitangent[0] = (-tex_edge2[0] * edge1[0] + tex_edge1[0] * edge2[0]) * det_reciprocal;
-			bitangent[1] = (-tex_edge2[0] * edge1[1] + tex_edge1[0] * edge2[1]) * det_reciprocal;
-			bitangent[2] = (-tex_edge2[0] * edge1[2] + tex_edge1[0] * edge2[2]) * det_reciprocal;
+			tangent = edge1 * a_matrix[0][0] + edge2 * a_matrix[1][0];
+			bitangent = edge1 * a_matrix[0][1] + edge2 * a_matrix[1][1];
 		}
 
 		// Accumulate the tangents and bitangents.
@@ -698,15 +720,17 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 
 		ruis::vec3 bitangent_other = normals[i].cross(tangents[i]);
 
+		// The triangle in texture space can be wound in different direction than in object space,
+		// so we need to flip bitangent direction in that case to make normals from normal map still point
+		// towards face's normal direction.
 		auto b_dot_b = bitangent_other * bitangents[i];
-
 		auto sign = b_dot_b < ruis::real(0) ? ruis::real(-1) : ruis::real(1);
 
 		bitangents[i] = bitangent_other * sign;
 	}
 
-	auto tangents_vbo = factory_v.create_vertex_buffer(utki::make_span(tangents));
-	auto bitangents_vbo = factory_v.create_vertex_buffer(utki::make_span(bitangents));
+	auto tangents_vbo = factory_v.create_vertex_buffer(tangents);
+	auto bitangents_vbo = factory_v.create_vertex_buffer(bitangents);
 
 	auto vao = factory_v.create_vertex_array(
 		{utki::shared_ref<ruis::render::vertex_buffer>(position_accessor.get().vbo),
