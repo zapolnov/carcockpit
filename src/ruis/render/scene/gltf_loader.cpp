@@ -649,12 +649,12 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 		auto edge1 = p1 - p0;
 		auto edge2 = p2 - p0;
 
-		auto tex_edge_1 = t1 - t0;
-		auto tex_edge_2 = t2 - t0;
+		auto tex_edge1 = t1 - t0;
+		auto tex_edge2 = t2 - t0;
 
 		// Calculate the triangle face tangent and bitangent.
 
-		auto det = tex_edge_1.cross(tex_edge_2);
+		auto det = tex_edge1.cross(tex_edge2);
 
 		constexpr auto epsilon = ruis::real(1e-6f);
 
@@ -666,13 +666,13 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 			auto det_reciprocal = ruis::real(1) / det;
 
 			// TODO: figure out what is happening here and refactor with vector ops
-			tangent[0] = (tex_edge_2[1] * edge1[0] - tex_edge_1[1] * edge2[0]) * det_reciprocal;
-			tangent[1] = (tex_edge_2[1] * edge1[1] - tex_edge_1[1] * edge2[1]) * det_reciprocal;
-			tangent[2] = (tex_edge_2[1] * edge1[2] - tex_edge_1[1] * edge2[2]) * det_reciprocal;
+			tangent[0] = (tex_edge2[1] * edge1[0] - tex_edge1[1] * edge2[0]) * det_reciprocal;
+			tangent[1] = (tex_edge2[1] * edge1[1] - tex_edge1[1] * edge2[1]) * det_reciprocal;
+			tangent[2] = (tex_edge2[1] * edge1[2] - tex_edge1[1] * edge2[2]) * det_reciprocal;
 
-			bitangent[0] = (-tex_edge_2[0] * edge1[0] + tex_edge_1[0] * edge2[0]) * det_reciprocal;
-			bitangent[1] = (-tex_edge_2[0] * edge1[1] + tex_edge_1[0] * edge2[1]) * det_reciprocal;
-			bitangent[2] = (-tex_edge_2[0] * edge1[2] + tex_edge_1[0] * edge2[2]) * det_reciprocal;
+			bitangent[0] = (-tex_edge2[0] * edge1[0] + tex_edge1[0] * edge2[0]) * det_reciprocal;
+			bitangent[1] = (-tex_edge2[0] * edge1[1] + tex_edge1[0] * edge2[1]) * det_reciprocal;
+			bitangent[2] = (-tex_edge2[0] * edge1[2] + tex_edge1[0] * edge2[2]) * det_reciprocal;
 		}
 
 		// Accumulate the tangents and bitangents.
