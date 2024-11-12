@@ -672,17 +672,16 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 		//
 		// Solving this matrix equation is actually finding a right inverse matrix A for matrix T.
 		//
-		// Then, tangent and bitangent vectors are linear combinations of e1 and e2 with same aX coefficients.
+		// Then, tangent and bitangent vectors are linear combinations of e1 and e2 with same aXX coefficients.
 		//
 		// tangent = e1 * a11 + e2 * a21
-		// bitangnet = e1 * a12 + e2 * a22
-		//
+		// bitangent = e1 * a12 + e2 * a22
 
-		auto t_matrix = r4::matrix<ruis::real, 2, 2>(
-							tex_edge1, // row 0
-							tex_edge2 // row 1
+		auto t = r4::matrix<ruis::real, 2, 2>(
+					 tex_edge1, // row 0
+					 tex_edge2 // row 1
 		)
-							.transpose(); // rows become columns
+					 .transpose(); // rows become columns
 
 		constexpr auto epsilon = ruis::real(1e-5f);
 
@@ -690,11 +689,11 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 		auto bitangent = ruis::vec3(0, 1, 0);
 
 		using std::abs;
-		if (abs(t_matrix.det()) >= epsilon) {
-			auto a_matrix = t_matrix.inv();
+		if (abs(t.det()) >= epsilon) {
+			auto a = t.inv();
 
-			tangent = edge1 * a_matrix[0][0] + edge2 * a_matrix[1][0];
-			bitangent = edge1 * a_matrix[0][1] + edge2 * a_matrix[1][1];
+			tangent = edge1 * a[0][0] + edge2 * a[1][0];
+			bitangent = edge1 * a[0][1] + edge2 * a[1][1];
 		}
 
 		// Accumulate the tangents and bitangents.
