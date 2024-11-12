@@ -44,7 +44,10 @@ shader_pbr::shader_pbr() :
 
 						uniform highp mat4 matrix;       // mvp matrix
 						uniform highp mat4 mat4_mv;      // modelview matrix  
+
+						// TODO: remove?
 						uniform highp mat4 mat4_p;       // projection matrix  
+
 						uniform highp mat3 mat3_n;       // normal matrix (mat3)
 
 						uniform vec4 light_position;
@@ -57,19 +60,24 @@ shader_pbr::shader_pbr() :
 						void main()
 						{
 							// Transform normal and tangent to eye space
-							vec3 norm = 	normalize(mat3_n * a2);
-							vec3 tang = 	normalize(mat3_n * a3);
-							vec3 binormal = normalize(mat3_n * a4);     
-							// Matrix for transformation to tangent space
-							mat3 mat3_to_local = mat3(  tang.x, binormal.x, norm.x,
-														tang.y, binormal.y, norm.y,
-														tang.z, binormal.z, norm.z ) ;
-							// Get the position in eye coordinates
-							vec3 pos = vec3( mat4_mv * a0 );   
-							// Transform light dir. and view dir. to tangent space
-							light_dir = normalize( mat3_to_local * (light_position.xyz - pos) );
-							view_dir = mat3_to_local * normalize(-pos);
-							// Pass along the texture coordinate	
+							vec3 normal = normalize(mat3_n * a2);
+							vec3 tangent = normalize(mat3_n * a3);
+							vec3 bitangent = normalize(mat3_n * a4);     
+
+							// matrix for transformation to tangent space
+							mat3 mat3_to_tangent = mat3(
+								tangent.x, bitangent.x, normal.x,
+								tangent.y, bitangent.y, normal.y,
+								tangent.z, bitangent.z, normal.z
+							);
+
+							// get the position in eye coordinates
+							vec3 pos = vec3( mat4_mv * a0 );
+
+							// Transform light direction and view direction to tangent space
+							light_dir = normalize( mat3_to_tangent * (light_position.xyz - pos) );
+							view_dir = mat3_to_tangent * normalize(-pos);
+
 							tc = vec2(a1.x, 1.0 - a1.y);                 
 							gl_Position = matrix * a0;
 						}	
