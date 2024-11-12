@@ -627,10 +627,10 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 	std::vector<ruis::vec3> bitangents; // texture y-axis
 
 	tangents.resize(num_vertices);
-	std::fill(tangents.begin(), tangents.end(), ruis::vec3(0, 0, 0));
+	std::ranges::fill(tangents, ruis::vec3(0, 0, 0));
 
 	bitangents.resize(num_vertices);
-	std::fill(bitangents.begin(), bitangents.end(), ruis::vec3(0, 0, 0));
+	std::ranges::fill(bitangents, ruis::vec3(0, 0, 0));
 
 	// Calculate the vertex tangents and bitangents.
 	for (uint32_t i = 0; i < num_triangles; ++i) {
