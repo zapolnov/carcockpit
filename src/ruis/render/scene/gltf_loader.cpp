@@ -339,6 +339,8 @@ utki::shared_ref<node> gltf_loader::read_node(const jsondom::value& json_node)
 		transformation.translation = read_vec(json_node, "translation", default_translation);
 	}
 
+	// TODO: support loading "matrix"
+
 	int mesh_index = read_int(json_node, "mesh");
 	child_indices.push_back(read_uint_array(json_node, "children"));
 
