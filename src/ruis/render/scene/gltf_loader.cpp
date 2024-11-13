@@ -630,10 +630,10 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 	std::vector<ruis::vec3> bitangents; // texture y-axis
 
 	tangents.resize(num_vertices);
-	std::fill(tangents.begin(), tangents.end(), ruis::vec3(0, 0, 0));
+	std::ranges::fill(tangents, ruis::vec3(0, 0, 0));
 
 	bitangents.resize(num_vertices);
-	std::fill(bitangents.begin(), bitangents.end(), ruis::vec3(0, 0, 0));
+	std::ranges::fill(bitangents, ruis::vec3(0, 0, 0));
 
 	// Calculate the vertex tangents and bitangents.
 	for (uint32_t i = 0; i < num_triangles; ++i) {
@@ -652,30 +652,51 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 		auto edge1 = p1 - p0;
 		auto edge2 = p2 - p0;
 
-		auto tex_edge_1 = t1 - t0;
-		auto tex_edge_2 = t2 - t0;
+		auto tex_edge1 = t1 - t0;
+		auto tex_edge2 = t2 - t0;
 
-		// Calculate the triangle face tangent and bitangent.
+		// Calculate the triangle tangent and bitangent.
+		//
+		// We want to map vectors (1, 0) and (0, 1) from texture space to 3d space (to tangent and bitangent vectors).
+		//
+		// vec2 te1, te2 : triangle edges in texture space
+		// vec3 e1, e2 : triangle edges in 3d space
+		//
+		// Vectors (1, 0) and (0, 1) as a linear combination of te1 and te2:
+		//
+		// (1, 0) = te1 * a11 + te2 * a21
+		// (0, 1) = te1 * a12 + te2 * a22
+		//
+		// We need to solve these equations for a11, a12, a21, a22. The system of equations can be written in matrix
+		// form:
+		//
+		// | te1.x te2.x | * | a11 a12 | = | 1 0 |        <->        T * A = I
+		// | te1.y te2.y |   | a21 a22 |   | 0 1 |
+		//
+		// Solving this matrix equation is actually finding a right inverse matrix A for matrix T.
+		//
+		// Then, tangent and bitangent vectors are linear combinations of e1 and e2 with same aXX coefficients.
+		//
+		// tangent = e1 * a11 + e2 * a21
+		// bitangent = e1 * a12 + e2 * a22
 
-		auto det = tex_edge_1.cross(tex_edge_2);
+		auto t = r4::matrix<ruis::real, 2, 2>(
+					 tex_edge1, // row 0
+					 tex_edge2 // row 1
+		)
+					 .transpose(); // rows become columns
 
-		constexpr auto epsilon = ruis::real(1e-6f);
+		constexpr auto epsilon = ruis::real(1e-5f);
 
 		auto tangent = ruis::vec3(1, 0, 0);
 		auto bitangent = ruis::vec3(0, 1, 0);
 
 		using std::abs;
-		if (abs(det) >= epsilon) {
-			auto det_reciprocal = ruis::real(1) / det;
+		if (abs(t.det()) >= epsilon) {
+			auto a = t.inv();
 
-			// TODO: figure out what is happening here and refactor with vector ops
-			tangent[0] = (tex_edge_2[1] * edge1[0] - tex_edge_1[1] * edge2[0]) * det_reciprocal;
-			tangent[1] = (tex_edge_2[1] * edge1[1] - tex_edge_1[1] * edge2[1]) * det_reciprocal;
-			tangent[2] = (tex_edge_2[1] * edge1[2] - tex_edge_1[1] * edge2[2]) * det_reciprocal;
-
-			bitangent[0] = (-tex_edge_2[0] * edge1[0] + tex_edge_1[0] * edge2[0]) * det_reciprocal;
-			bitangent[1] = (-tex_edge_2[0] * edge1[1] + tex_edge_1[0] * edge2[1]) * det_reciprocal;
-			bitangent[2] = (-tex_edge_2[0] * edge1[2] + tex_edge_1[0] * edge2[2]) * det_reciprocal;
+			tangent = edge1 * a[0][0] + edge2 * a[1][0];
+			bitangent = edge1 * a[0][1] + edge2 * a[1][1];
 		}
 
 		// Accumulate the tangents and bitangents.
@@ -691,25 +712,23 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 
 	// Orthogonalize and normalize the vertex tangents.
 	for (uint32_t i = 0; i < num_vertices; ++i) {
-		// Gram-Schmidt orthogonalize tangent with normal.
+		// Tangent and bitangent are not necessarily ortogonal to each other, but those have to be
+		// ortogonal to the normal.
 
-		auto n_dot_t = normals[i] * tangents[i]; // dot product
+		// Ortogonalize the tangent and bitangent to the normal.
 
-		tangents[i] -= normals[i] * n_dot_t;
+		tangents[i] -= normals[i].dot(tangents[i]) * normals[i];
+		bitangents[i] -= normals[i].dot(bitangents[i]) * normals[i];
 
 		tangents[i].normalize();
+		bitangents[i].normalize();
 
-		ruis::vec3 bitangent_other = normals[i].cross(tangents[i]);
-
-		auto b_dot_b = bitangent_other * bitangents[i];
-
-		auto sign = b_dot_b < ruis::real(0) ? ruis::real(-1) : ruis::real(1);
-
-		bitangents[i] = bitangent_other * sign;
+		// TODO: The triangle in texture space can be wound in different direction than in object space,
+		// need to flip the tangent basis to make normals from normal map point towards triangle normal direction.
 	}
 
-	auto tangents_vbo = factory_v.create_vertex_buffer(utki::make_span(tangents));
-	auto bitangents_vbo = factory_v.create_vertex_buffer(utki::make_span(bitangents));
+	auto tangents_vbo = factory_v.create_vertex_buffer(tangents);
+	auto bitangents_vbo = factory_v.create_vertex_buffer(bitangents);
 
 	auto vao = factory_v.create_vertex_array(
 		{utki::shared_ref<ruis::render::vertex_buffer>(position_accessor.get().vbo),

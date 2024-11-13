@@ -30,7 +30,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using namespace ruis::render;
 
-constexpr ruis::vec4 default_light_position{5.0f, 5.0f, 5.0f, 1.0f};
+constexpr ruis::vec3 default_light_position{5.0f, 5.0f, 5.0f};
 constexpr ruis::vec3 default_light_intensity{2.0f, 2.0f, 2.0f};
 
 shader_pbr::shader_pbr() :
@@ -44,10 +44,13 @@ shader_pbr::shader_pbr() :
 
 						uniform highp mat4 matrix;       // mvp matrix
 						uniform highp mat4 mat4_mv;      // modelview matrix  
+
+						// TODO: remove?
 						uniform highp mat4 mat4_p;       // projection matrix  
+
 						uniform highp mat3 mat3_n;       // normal matrix (mat3)
 
-						uniform vec4 light_position;
+						uniform vec3 light_position;
 						uniform vec3 light_intensity;
 
 						varying highp vec3 light_dir;
@@ -57,23 +60,27 @@ shader_pbr::shader_pbr() :
 						void main()
 						{
 							// Transform normal and tangent to eye space
-							vec3 norm = 	normalize(mat3_n * a2);
-							vec3 tang = 	normalize(mat3_n * a3);
-							vec3 binormal = normalize(mat3_n * a4);     
-							// Matrix for transformation to tangent space
-							mat3 mat3_to_local = mat3(  tang.x, binormal.x, norm.x,
-														tang.y, binormal.y, norm.y,
-														tang.z, binormal.z, norm.z ) ;
-							// Get the position in eye coordinates
-							vec3 pos = vec3( mat4_mv * a0 );   
-							// Transform light dir. and view dir. to tangent space
-							light_dir = normalize( mat3_to_local * (light_position.xyz - pos) );
-							view_dir = mat3_to_local * normalize(-pos);
-							// Pass along the texture coordinate	
+							vec3 normal = normalize(mat3_n * a2);
+							vec3 tangent = normalize(mat3_n * a3);
+							vec3 bitangent = normalize(mat3_n * a4);     
+
+							// matrix for transformation to tangent space
+							mat3 mat3_to_tangent = mat3(
+								tangent.x, bitangent.x, normal.x,
+								tangent.y, bitangent.y, normal.y,
+								tangent.z, bitangent.z, normal.z
+							);
+
+							// get the position in eye coordinates
+							vec3 pos = vec3( mat4_mv * a0 );
+
+							// Transform light direction and view direction to tangent space
+							light_dir = normalize( mat3_to_tangent * (light_position - pos) );
+							view_dir = mat3_to_tangent * normalize(-pos);
+
 							tc = vec2(a1.x, 1.0 - a1.y);                 
 							gl_Position = matrix * a0;
-						}	
-						
+						}
 	)qwertyuiop",
 		R"qwertyuiop(
 						precision highp float;
@@ -87,14 +94,21 @@ shader_pbr::shader_pbr() :
 						uniform sampler2D texture2;   // roughness map tex
 						uniform samplerCube texture3; // cube map
 
-						uniform vec4 light_position;
+						uniform vec3 light_position;
 						uniform vec3 light_intensity;
 		
-						const vec3 Kd = vec3(0.5, 0.5, 0.5);  		   // Diffuse reflectivity
-						const vec3 Ka = vec3(0.1, 0.1, 0.1);  		   // Ambient reflectivity
-						const vec3 Ks = vec3(0.7, 0.7, 0.7);  		   // Specular reflectivity
+						const vec3 Kd = vec3(0.5, 0.5, 0.5); // Diffuse reflectivity
+						const vec3 Ka = vec3(0.1, 0.1, 0.1); // Ambient reflectivity
+						const vec3 Ks = vec3(0.7, 0.7, 0.7); // Specular reflectivity
 
-						vec3 phong_model( vec3 norm, vec3 diffuse_reflectivity, float ambient_occlusion, float glossiness, float metalness ) 
+						// TODO: is it still called Phong?
+						vec3 phong_model(
+							vec3 norm,
+							vec3 diffuse_reflectivity,
+							float ambient_occlusion,
+							float glossiness,
+							float metalness
+						)
 						{
 							vec3 r_env = reflect( view_dir, norm );
 							vec3 env_refl = textureCube( texture3, r_env).xyz;
@@ -102,9 +116,9 @@ shader_pbr::shader_pbr() :
 							vec3 r = reflect( -light_dir, norm );
 							float sDotN = max( dot(light_dir, norm) , 0.0 );
 
-							vec3 ambient = (Ka)                                                  * light_intensity;
-							vec3 diffuse = max( Kd - metalness, 0.0 ) * sDotN                    * light_intensity;
-							vec3 spec    = Ks * pow( max( dot(r, view_dir), 0.0 ), glossiness )  * light_intensity;
+							vec3 ambient = light_intensity * Ka;
+							vec3 diffuse = light_intensity * max( Kd - metalness, 0.0 ) * sDotN;
+							vec3 spec = light_intensity * Ks * pow( max( dot(r, view_dir), 0.0 ), glossiness );
 
 							return (( ambient + diffuse ) * diffuse_reflectivity + spec ) + (env_refl * metalness);
 						}			
@@ -114,7 +128,9 @@ shader_pbr::shader_pbr() :
 							vec3 arm = texture2D( texture2, tc ).xyz;          
 							float gloss = ((1.0 - pow(arm.y, 0.2) ) * 100.0 + 1.0 );
 
+							// TODO: why multiply by 2 and subtract 1? Add comment.
 							vec4 normal4 = 2.0 * texture2D( texture1, tc ) - 1.0;
+
 							vec3 normal = normalize(normal4.xyz);	
 							normal = vec3(normal.x, -normal.y, normal.z);			
 
@@ -129,7 +145,7 @@ shader_pbr::shader_pbr() :
 	sampler_cube(this->get_uniform("texture3")),
 	mat4_modelview(this->get_uniform("mat4_mv")),
 	mat3_normal(this->get_uniform("mat3_n")),
-	vec4_light_position(this->get_uniform("light_position")),
+	vec3_light_position(this->get_uniform("light_position")),
 	vec3_light_intensity(this->get_uniform("light_intensity"))
 {}
 
@@ -137,7 +153,7 @@ void shader_pbr::render(
 	const ruis::render::vertex_array& va,
 	const r4::matrix4<float>& mvp,
 	const r4::matrix4<float>& modelview,
-	const r4::matrix4<float>& projection,
+	const r4::matrix4<float>& projection, // TODO: remove?
 	const ruis::render::texture_2d& tex_color,
 	const ruis::render::texture_2d& tex_normal,
 	const ruis::render::texture_2d& tex_roughness,
@@ -169,7 +185,7 @@ void shader_pbr::render(
 	normal.invert();
 	normal.transpose();
 
-	this->set_uniform4f(this->vec4_light_position, light_pos[0], light_pos[1], light_pos[2], light_pos[3]);
+	this->set_uniform3f(this->vec3_light_position, light_pos[0], light_pos[1], light_pos[2]);
 	this->set_uniform3f(this->vec3_light_intensity, light_int[0], light_int[1], light_int[2]);
 	this->set_uniform_matrix4f(this->mat4_modelview, modelview);
 	this->set_uniform_matrix3f(mat3_normal, normal);
