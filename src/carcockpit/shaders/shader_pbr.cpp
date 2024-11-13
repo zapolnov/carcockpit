@@ -80,8 +80,7 @@ shader_pbr::shader_pbr() :
 
 							tc = vec2(a1.x, 1.0 - a1.y);                 
 							gl_Position = matrix * a0;
-						}	
-						
+						}
 	)qwertyuiop",
 		R"qwertyuiop(
 						precision highp float;
