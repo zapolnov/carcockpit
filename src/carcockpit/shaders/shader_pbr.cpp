@@ -98,11 +98,18 @@ shader_pbr::shader_pbr() :
 						uniform vec4 light_position;
 						uniform vec3 light_intensity;
 		
-						const vec3 Kd = vec3(0.5, 0.5, 0.5);  		   // Diffuse reflectivity
-						const vec3 Ka = vec3(0.1, 0.1, 0.1);  		   // Ambient reflectivity
-						const vec3 Ks = vec3(0.7, 0.7, 0.7);  		   // Specular reflectivity
+						const vec3 Kd = vec3(0.5, 0.5, 0.5); // Diffuse reflectivity
+						const vec3 Ka = vec3(0.1, 0.1, 0.1); // Ambient reflectivity
+						const vec3 Ks = vec3(0.7, 0.7, 0.7); // Specular reflectivity
 
-						vec3 phong_model( vec3 norm, vec3 diffuse_reflectivity, float ambient_occlusion, float glossiness, float metalness ) 
+						// TODO: is it still called Phong?
+						vec3 phong_model(
+							vec3 norm,
+							vec3 diffuse_reflectivity,
+							float ambient_occlusion,
+							float glossiness,
+							float metalness
+						)
 						{
 							vec3 r_env = reflect( view_dir, norm );
 							vec3 env_refl = textureCube( texture3, r_env).xyz;
@@ -110,9 +117,9 @@ shader_pbr::shader_pbr() :
 							vec3 r = reflect( -light_dir, norm );
 							float sDotN = max( dot(light_dir, norm) , 0.0 );
 
-							vec3 ambient = (Ka)                                                  * light_intensity;
-							vec3 diffuse = max( Kd - metalness, 0.0 ) * sDotN                    * light_intensity;
-							vec3 spec    = Ks * pow( max( dot(r, view_dir), 0.0 ), glossiness )  * light_intensity;
+							vec3 ambient = light_intensity * Ka;
+							vec3 diffuse = light_intensity * max( Kd - metalness, 0.0 ) * sDotN;
+							vec3 spec = light_intensity * Ks * pow( max( dot(r, view_dir), 0.0 ), glossiness );
 
 							return (( ambient + diffuse ) * diffuse_reflectivity + spec ) + (env_refl * metalness);
 						}			
@@ -122,7 +129,9 @@ shader_pbr::shader_pbr() :
 							vec3 arm = texture2D( texture2, tc ).xyz;          
 							float gloss = ((1.0 - pow(arm.y, 0.2) ) * 100.0 + 1.0 );
 
+							// TODO: why multiply by 2 and subtract 1? Add comment.
 							vec4 normal4 = 2.0 * texture2D( texture1, tc ) - 1.0;
+
 							vec3 normal = normalize(normal4.xyz);	
 							normal = vec3(normal.x, -normal.y, normal.z);			
 
@@ -145,7 +154,7 @@ void shader_pbr::render(
 	const ruis::render::vertex_array& va,
 	const r4::matrix4<float>& mvp,
 	const r4::matrix4<float>& modelview,
-	const r4::matrix4<float>& projection,
+	const r4::matrix4<float>& projection, // TODO: remove?
 	const ruis::render::texture_2d& tex_color,
 	const ruis::render::texture_2d& tex_normal,
 	const ruis::render::texture_2d& tex_roughness,

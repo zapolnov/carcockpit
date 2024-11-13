@@ -53,6 +53,7 @@ public:
 	GLint vec3_light_intensity;
 
 	shader_pbr();
+
 	void render(
 		const ruis::render::vertex_array& va,
 		const r4::matrix4<float>& mvp,
