@@ -49,7 +49,7 @@ public:
 	GLint mat4_modelview;
 	GLint mat3_normal;
 
-	GLint vec4_light_position;
+	GLint vec3_light_position;
 	GLint vec3_light_intensity;
 
 	shader_pbr();

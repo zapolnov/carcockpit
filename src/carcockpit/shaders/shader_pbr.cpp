@@ -30,7 +30,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using namespace ruis::render;
 
-constexpr ruis::vec4 default_light_position{5.0f, 5.0f, 5.0f, 1.0f};
+constexpr ruis::vec3 default_light_position{5.0f, 5.0f, 5.0f};
 constexpr ruis::vec3 default_light_intensity{2.0f, 2.0f, 2.0f};
 
 shader_pbr::shader_pbr() :
@@ -50,7 +50,7 @@ shader_pbr::shader_pbr() :
 
 						uniform highp mat3 mat3_n;       // normal matrix (mat3)
 
-						uniform vec4 light_position;
+						uniform vec3 light_position;
 						uniform vec3 light_intensity;
 
 						varying highp vec3 light_dir;
@@ -75,7 +75,7 @@ shader_pbr::shader_pbr() :
 							vec3 pos = vec3( mat4_mv * a0 );
 
 							// Transform light direction and view direction to tangent space
-							light_dir = normalize( mat3_to_tangent * (light_position.xyz - pos) );
+							light_dir = normalize( mat3_to_tangent * (light_position - pos) );
 							view_dir = mat3_to_tangent * normalize(-pos);
 
 							tc = vec2(a1.x, 1.0 - a1.y);                 
@@ -95,7 +95,7 @@ shader_pbr::shader_pbr() :
 						uniform sampler2D texture2;   // roughness map tex
 						uniform samplerCube texture3; // cube map
 
-						uniform vec4 light_position;
+						uniform vec3 light_position;
 						uniform vec3 light_intensity;
 		
 						const vec3 Kd = vec3(0.5, 0.5, 0.5); // Diffuse reflectivity
@@ -146,7 +146,7 @@ shader_pbr::shader_pbr() :
 	sampler_cube(this->get_uniform("texture3")),
 	mat4_modelview(this->get_uniform("mat4_mv")),
 	mat3_normal(this->get_uniform("mat3_n")),
-	vec4_light_position(this->get_uniform("light_position")),
+	vec3_light_position(this->get_uniform("light_position")),
 	vec3_light_intensity(this->get_uniform("light_intensity"))
 {}
 
@@ -186,7 +186,7 @@ void shader_pbr::render(
 	normal.invert();
 	normal.transpose();
 
-	this->set_uniform4f(this->vec4_light_position, light_pos[0], light_pos[1], light_pos[2], light_pos[3]);
+	this->set_uniform3f(this->vec3_light_position, light_pos[0], light_pos[1], light_pos[2]);
 	this->set_uniform3f(this->vec3_light_intensity, light_int[0], light_int[1], light_int[2]);
 	this->set_uniform_matrix4f(this->mat4_modelview, modelview);
 	this->set_uniform_matrix3f(mat3_normal, normal);
