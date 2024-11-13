@@ -26,29 +26,35 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <ruis/render/vertex_array.hpp>
 
 namespace ruis::render {
-class material
-{
-public:
+struct material {
 	std::string name;
+
+	/**
+	 * @brief Diffuse color texture.
+	 */
 	std::shared_ptr<ruis::render::texture_2d> tex_diffuse;
+
+	/**
+	 * @brief Normal map texture.
+	 */
 	std::shared_ptr<ruis::render::texture_2d> tex_normal;
-	std::shared_ptr<ruis::render::texture_2d> tex_arm; // ambient occlusion, roughness, metalness
+
+	/**
+	 * @brief ARM texture.
+	 * ARM = ambient occlusion, roughness, metalness.
+	 */
+	std::shared_ptr<ruis::render::texture_2d> tex_arm;
 };
 
-class primitive
-{
-public:
+struct primitive {
 	utki::shared_ref<ruis::render::vertex_array> vao;
 	utki::shared_ref<material> material_v;
-	primitive(utki::shared_ref<ruis::render::vertex_array> vao, utki::shared_ref<material> material_v);
 };
 
-class mesh
-{
-public:
-	std::vector<utki::shared_ref<primitive>> primitives;
+struct mesh {
 	std::string name;
-	mesh(std::vector<utki::shared_ref<primitive>> primitives, std::string name);
+
+	std::vector<utki::shared_ref<primitive>> primitives;
 };
 
 } // namespace ruis::render

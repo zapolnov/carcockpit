@@ -43,25 +43,21 @@ constexpr trs_transformation identity_trs_transformation{
 	.scale = {1, 1, 1}
 };
 
-class node
-{
-public:
+using transformation_variant = std::variant<
+	trs_transformation,
+	ruis::mat4 //
+	>;
+
+struct node {
 	std::string name;
 
 	std::shared_ptr<mesh> mesh_v;
-	trs_transformation transformation;
+
+	transformation_variant transformation;
 
 	std::vector<utki::shared_ref<node>> children;
 
 	ruis::mat4 get_transformation_matrix() const;
-	// TODO: consider support for transformnation in form of a matrix which comes from GLTF file, e.g.
-	// std::variant<ruis::mat4, trs> transformation;
-
-	node(
-		std::string name, //
-		std::shared_ptr<mesh> mesh_v,
-		const trs_transformation& transformation = identity_trs_transformation
-	);
 };
 
 } // namespace ruis::render

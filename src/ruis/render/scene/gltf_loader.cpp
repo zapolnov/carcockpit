@@ -308,11 +308,13 @@ utki::shared_ref<mesh> gltf_loader::read_mesh(const jsondom::value& mesh_json)
 		}
 	}
 
-	auto new_mesh = utki::make_shared<mesh>(primitives, name);
-	return new_mesh;
+	return utki::make_shared<mesh>(
+		std::move(name), //
+		std::move(primitives)
+	);
 }
 
-utki::shared_ref<node> gltf_loader::read_node(const jsondom::value& node_json)
+utki::shared_ref<node> gltf_loader::read_node(const jsondom::value& json_node)
 {
 	constexpr ruis::vec3 default_scale{1, 1, 1};
 	constexpr ruis::vec3 default_translation{0, 0, 0};
@@ -320,29 +322,31 @@ utki::shared_ref<node> gltf_loader::read_node(const jsondom::value& node_json)
 
 	trs_transformation transformation = identity_trs_transformation;
 
-	std::string name = read_string(node_json, "name");
+	std::string name = read_string(json_node, "name");
 
-	auto it = node_json.object().find("rotation");
-	if (it != node_json.object().end())
-		transformation.rotation = read_quat(node_json, "rotation", default_rotation);
+	auto it = json_node.object().find("rotation");
+	if (it != json_node.object().end()) {
+		transformation.rotation = read_quat(json_node, "rotation", default_rotation);
+	}
 
-	it = node_json.object().find("scale");
-	if (it != node_json.object().end())
-		transformation.scale = read_vec(node_json, "scale", default_scale);
+	it = json_node.object().find("scale");
+	if (it != json_node.object().end()) {
+		transformation.scale = read_vec(json_node, "scale", default_scale);
+	}
 
-	it = node_json.object().find("translation");
-	if (it != node_json.object().end())
-		transformation.translation = read_vec(node_json, "translation", default_translation);
+	it = json_node.object().find("translation");
+	if (it != json_node.object().end()) {
+		transformation.translation = read_vec(json_node, "translation", default_translation);
+	}
 
-	int mesh_index = read_int(node_json, "mesh");
-	child_indices.push_back(read_uint_array(node_json, "children"));
+	int mesh_index = read_int(json_node, "mesh");
+	child_indices.push_back(read_uint_array(json_node, "children"));
 
-	auto new_node = utki::make_shared<node>(
-		name, //
+	return utki::make_shared<node>(
+		std::move(name), //
 		mesh_index >= 0 ? meshes[mesh_index].to_shared_ptr() : nullptr,
-		transformation
+		std::move(transformation)
 	);
-	return new_node;
 }
 
 utki::shared_ref<scene> gltf_loader::read_scene(const jsondom::value& scene_json)

@@ -23,24 +23,22 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using namespace ruis::render;
 
-node::node(
-	std::string name, //
-	std::shared_ptr<mesh> mesh_v,
-	const trs_transformation& transformation
-) :
-	name(std::move(name)),
-	mesh_v(std::move(mesh_v)),
-	transformation(transformation)
-{}
-
 ruis::mat4 node::get_transformation_matrix() const
 {
-	ruis::mat4 transformation_matrix;
+	if (std::holds_alternative<ruis::mat4>(this->transformation)) {
+		return std::get<ruis::mat4>(this->transformation);
+	} else {
+		ASSERT(std::holds_alternative<trs_transformation>(this->transformation))
 
-	transformation_matrix.set_identity();
-	transformation_matrix.translate(transformation.translation);
-	transformation_matrix.rotate(transformation.rotation);
-	transformation_matrix.scale(transformation.scale);
+		const auto& trs = std::get<trs_transformation>(this->transformation);
 
-	return transformation_matrix;
+		ruis::mat4 m;
+
+		m.set_identity();
+		m.translate(trs.translation);
+		m.rotate(trs.rotation);
+		m.scale(trs.scale);
+
+		return m;
+	}
 }
