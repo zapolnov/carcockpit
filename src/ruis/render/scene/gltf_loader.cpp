@@ -337,8 +337,11 @@ utki::shared_ref<node> gltf_loader::read_node(const jsondom::value& node_json)
 	int mesh_index = read_int(node_json, "mesh");
 	child_indices.push_back(read_uint_array(node_json, "children"));
 
-	auto new_node =
-		utki::make_shared<node>(mesh_index >= 0 ? meshes[mesh_index].to_shared_ptr() : nullptr, name, transformation);
+	auto new_node = utki::make_shared<node>(
+		name, //
+		mesh_index >= 0 ? meshes[mesh_index].to_shared_ptr() : nullptr,
+		transformation
+	);
 	return new_node;
 }
 

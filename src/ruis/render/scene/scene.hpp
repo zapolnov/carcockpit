@@ -50,7 +50,8 @@ public:
 
 	std::shared_ptr<light> get_primary_light();
 	std::shared_ptr<light> get_secondary_light();
-	virtual void update(uint32_t dt);
+
+	void update(uint32_t dt);
 };
 
 constexpr float default_camera_near = 0.1;

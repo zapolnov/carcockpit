@@ -23,13 +23,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <variant>
 
-#include <papki/file.hpp>
 #include <r4/quaternion.hpp>
 #include <r4/vector.hpp>
 #include <ruis/config.hpp>
 
 #include "mesh.hpp"
-#include "scene.hpp"
 
 namespace ruis::render {
 
@@ -40,18 +38,17 @@ struct trs_transformation {
 };
 
 constexpr trs_transformation identity_trs_transformation{
-	.translation = {0.0f, 0.0f, 0.0f},
-	.rotation = {0.0f, 0.0f, 0.0f, 1.0f},
-	.scale = {1.0f, 1.0f, 1.0f}
+	.translation = {0, 0, 0},
+	.rotation = {0, 0, 0, 1},
+	.scale = {1, 1, 1}
 };
-
-class scene;
 
 class node
 {
 public:
-	std::shared_ptr<mesh> mesh_v;
 	std::string name;
+
+	std::shared_ptr<mesh> mesh_v;
 	trs_transformation transformation;
 
 	std::vector<utki::shared_ref<node>> children;
@@ -61,8 +58,8 @@ public:
 	// std::variant<ruis::mat4, trs> transformation;
 
 	node(
-		std::shared_ptr<mesh> mesh_v, //
-		std::string name,
+		std::string name, //
+		std::shared_ptr<mesh> mesh_v,
 		const trs_transformation& transformation = identity_trs_transformation
 	);
 };
