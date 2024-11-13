@@ -341,12 +341,15 @@ utki::shared_ref<node> gltf_loader::read_node(const jsondom::value& json_node)
 
 	// TODO: support loading "matrix"
 
+	// TODO: check if "mesh" is present before reading it
 	int mesh_index = read_int(json_node, "mesh");
+	// TODO: check if mesh_index is within the this->meshes array
+
 	child_indices.push_back(read_uint_array(json_node, "children"));
 
 	return utki::make_shared<node>(
 		std::move(name), //
-		mesh_index >= 0 ? meshes[mesh_index].to_shared_ptr() : nullptr,
+		mesh_index >= 0 ? this->meshes[mesh_index].to_shared_ptr() : nullptr,
 		std::move(transformation)
 	);
 }
