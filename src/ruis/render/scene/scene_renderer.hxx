@@ -31,10 +31,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace ruis::render {
 
-class node;
-class camera;
-class light;
-
 class scene_renderer
 {
 protected:

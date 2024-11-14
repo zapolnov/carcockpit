@@ -33,78 +33,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace ruis::render {
 
-struct buffer_view;
-struct accessor;
-struct image_l;
-struct sampler_l;
-class material;
-using vertex_data_type = std::variant<
-	std::vector<float>,
-	std::vector<ruis::vec2>,
-	std::vector<ruis::vec3>,
-	std::vector<ruis::vec4>,
-	std::vector<uint16_t>,
-	std::vector<uint32_t>>;
-
-class gltf_loader
-{
-	ruis::render::factory& factory_v;
-
-	utki::span<const uint8_t> glb_binary_buffer;
-
-	// order of items in arrays below is important during loading stage
-	std::vector<utki::shared_ref<scene>> scenes;
-	std::vector<utki::shared_ref<node>> nodes;
-	std::vector<utki::shared_ref<mesh>> meshes;
-	std::vector<utki::shared_ref<accessor>> accessors;
-	std::vector<utki::shared_ref<buffer_view>> buffer_views;
-
-	std::vector<utki::shared_ref<material>> materials;
-	std::vector<utki::shared_ref<ruis::render::texture_2d>> textures;
-	std::vector<utki::shared_ref<sampler_l>> samplers;
-	std::vector<utki::shared_ref<image_l>> images;
-
-	std::vector<std::vector<uint32_t>> child_indices; // storage for node child hierarchy (only during loading stage)
-
-	template <typename tp_type>
-	void create_vertex_buffer_float(
-		utki::shared_ref<ruis::render::accessor>,
-		utki::span<const uint8_t> buffer,
-		uint32_t acc_count,
-		uint32_t acc_stride
-	);
-
-	template <typename tp_type>
-	std::vector<utki::shared_ref<tp_type>> read_root_array(
-		std::function<tp_type(const jsondom::value& j)> read_func,
-		const jsondom::value& root_json,
-		const std::string& name
-	);
-
-	template <typename tp_type>
-	utki::shared_ref<ruis::render::vertex_array> create_vao_with_tangent_space(
-		utki::shared_ref<accessor> index_accessor,
-		utki::shared_ref<accessor> position_accessor,
-		utki::shared_ref<accessor> texcoord_0_accessor,
-		utki::shared_ref<accessor> normal_accessor
-	);
-
-	utki::shared_ref<buffer_view> read_buffer_view(const jsondom::value& buffer_view_json);
-	utki::shared_ref<accessor> read_accessor(const jsondom::value& accessor_json);
-	utki::shared_ref<mesh> read_mesh(const jsondom::value& mesh_json);
-	utki::shared_ref<node> read_node(const jsondom::value& node_json);
-	utki::shared_ref<scene> read_scene(const jsondom::value& scene_json);
-
-	utki::shared_ref<image_l> read_image(const jsondom::value& image_json);
-	utki::shared_ref<sampler_l> read_sampler(const jsondom::value& sampler_json);
-	utki::shared_ref<ruis::render::texture_2d> read_texture(const jsondom::value& texture_json);
-	utki::shared_ref<material> read_material(const jsondom::value& material_json);
-
-public:
-	utki::shared_ref<scene> load(const papki::file& fi);
-	gltf_loader(ruis::render::factory& factory_v);
-};
-
 struct buffer_view // currently we support only one data buffer, the single data buffer located in the .glb file
 {
 	uint32_t byte_length;
@@ -124,6 +52,14 @@ struct buffer_view // currently we support only one data buffer, the single data
 		target_v(target_v)
 	{}
 };
+
+using vertex_data_type = std::variant<
+	std::vector<float>,
+	std::vector<ruis::vec2>,
+	std::vector<ruis::vec3>,
+	std::vector<ruis::vec4>,
+	std::vector<uint16_t>,
+	std::vector<uint32_t>>;
 
 struct accessor {
 	utki::shared_ref<buffer_view> bv;
@@ -209,6 +145,65 @@ struct sampler_l {
 		wrap_s(wrap_s),
 		wrap_t(wrap_t)
 	{}
+};
+
+class gltf_loader
+{
+	ruis::render::factory& factory_v;
+
+	utki::span<const uint8_t> glb_binary_buffer;
+
+	// order of items in arrays below is important during loading stage
+	std::vector<utki::shared_ref<scene>> scenes;
+	std::vector<utki::shared_ref<node>> nodes;
+	std::vector<utki::shared_ref<mesh>> meshes;
+	std::vector<utki::shared_ref<accessor>> accessors;
+	std::vector<utki::shared_ref<buffer_view>> buffer_views;
+
+	std::vector<utki::shared_ref<material>> materials;
+	std::vector<utki::shared_ref<ruis::render::texture_2d>> textures;
+	std::vector<utki::shared_ref<sampler_l>> samplers;
+	std::vector<utki::shared_ref<image_l>> images;
+
+	std::vector<std::vector<uint32_t>> child_indices; // storage for node child hierarchy (only during loading stage)
+
+	template <typename tp_type>
+	void create_vertex_buffer_float(
+		utki::shared_ref<ruis::render::accessor>,
+		utki::span<const uint8_t> buffer,
+		uint32_t acc_count,
+		uint32_t acc_stride
+	);
+
+	template <typename tp_type>
+	std::vector<utki::shared_ref<tp_type>> read_root_array(
+		std::function<tp_type(const jsondom::value& j)> read_func,
+		const jsondom::value& root_json,
+		const std::string& name
+	);
+
+	template <typename tp_type>
+	utki::shared_ref<ruis::render::vertex_array> create_vao_with_tangent_space(
+		utki::shared_ref<accessor> index_accessor,
+		utki::shared_ref<accessor> position_accessor,
+		utki::shared_ref<accessor> texcoord_0_accessor,
+		utki::shared_ref<accessor> normal_accessor
+	);
+
+	utki::shared_ref<buffer_view> read_buffer_view(const jsondom::value& buffer_view_json);
+	utki::shared_ref<accessor> read_accessor(const jsondom::value& accessor_json);
+	utki::shared_ref<mesh> read_mesh(const jsondom::value& mesh_json);
+	utki::shared_ref<node> read_node(const jsondom::value& node_json);
+	utki::shared_ref<scene> read_scene(const jsondom::value& scene_json);
+
+	utki::shared_ref<image_l> read_image(const jsondom::value& image_json);
+	utki::shared_ref<sampler_l> read_sampler(const jsondom::value& sampler_json);
+	utki::shared_ref<ruis::render::texture_2d> read_texture(const jsondom::value& texture_json);
+	utki::shared_ref<material> read_material(const jsondom::value& material_json);
+
+public:
+	utki::shared_ref<scene> load(const papki::file& fi);
+	gltf_loader(ruis::render::factory& factory_v);
 };
 
 } // namespace ruis::render
