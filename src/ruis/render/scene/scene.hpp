@@ -24,36 +24,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace ruis::render {
 
-class node;
-class camera;
-class light;
-
-class scene
-{
-	uint32_t time = 0;
-
-public:
-	std::string name;
-
-	std::vector<utki::shared_ref<node>> nodes;
-	std::vector<utki::shared_ref<camera>> cameras;
-	std::vector<utki::shared_ref<light>> lights;
-
-	std::shared_ptr<camera> active_camera;
-
-	scene() = default;
-	scene(const scene&) = default;
-	scene(scene&&) = default;
-	scene& operator=(const scene&) = default;
-	scene& operator=(scene&&) = default;
-	virtual ~scene() = default;
-
-	std::shared_ptr<light> get_primary_light();
-	std::shared_ptr<light> get_secondary_light();
-
-	void update(uint32_t dt);
-};
-
 constexpr float default_camera_near = 0.1;
 constexpr float default_camera_far = 100.0;
 
@@ -82,6 +52,32 @@ public:
 
 	light(ruis::vec4 pos, ruis::vec3 intensity);
 	light() = default;
+};
+
+class scene
+{
+	uint32_t time = 0;
+
+public:
+	std::string name;
+
+	std::vector<utki::shared_ref<node>> nodes;
+	std::vector<utki::shared_ref<camera>> cameras;
+	std::vector<utki::shared_ref<light>> lights;
+
+	std::shared_ptr<camera> active_camera;
+
+	scene() = default;
+	scene(const scene&) = default;
+	scene(scene&&) = default;
+	scene& operator=(const scene&) = default;
+	scene& operator=(scene&&) = default;
+	virtual ~scene() = default;
+
+	std::shared_ptr<light> get_primary_light();
+	std::shared_ptr<light> get_secondary_light();
+
+	void update(uint32_t dt);
 };
 
 } // namespace ruis::render
