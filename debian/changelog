@@ -1,3 +1,9 @@
+carcockpit (0.0.6) unstable; urgency=medium
+
+  * add app icon
+
+ -- Ivan Gagis <igagis@gmail.com>  Thu, 23 Jan 2025 19:41:14 +0200
+
 carcockpit (0.0.5) unstable; urgency=medium
 
   * res_path
