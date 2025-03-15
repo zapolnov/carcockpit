@@ -38,8 +38,8 @@ protected:
 	std::shared_ptr<ruis::render::scene> scene_v;
 	std::shared_ptr<ruis::render::camera> external_camera;
 	utki::shared_ref<ruis::context> context_v;
-	ruis::mat4 view_matrix;
-	ruis::mat4 projection_matrix;
+	ruis::mat4 view_matrix{};
+	ruis::mat4 projection_matrix{};
 	ruis::render::light main_light;
 	ruis::real scene_scaling_factor{1};
 

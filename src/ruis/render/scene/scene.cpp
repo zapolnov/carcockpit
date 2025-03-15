@@ -44,22 +44,18 @@ std::shared_ptr<light> scene::get_secondary_light()
 void scene::update(uint32_t dt)
 {
 	time += dt;
-	[[maybe_unused]] float ft = static_cast<float>(time) / std::milli::den;
-	[[maybe_unused]] float fdt = static_cast<float>(dt) / std::milli::den;
 }
 
 ruis::mat4 camera::get_projection_matrix(ruis::real aspect_ratio)
 {
-	ruis::mat4 projection;
-	projection.set_identity();
+	auto projection = ruis::mat4().set_identity();
 	projection.set_perspective(fovy, aspect_ratio, near, far);
 	return projection;
 }
 
 ruis::mat4 camera::get_view_matrix()
 {
-	ruis::mat4 view;
-	view.set_identity();
+	auto view = ruis::mat4().set_identity();
 	view.set_look_at(pos, target, up);
 	return view;
 }

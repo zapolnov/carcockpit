@@ -30,8 +30,8 @@ constexpr float default_camera_far = 100.0;
 class camera
 {
 public:
-	ruis::vec3 pos;
-	ruis::vec3 target;
+	ruis::vec3 pos{0, 0, 0};
+	ruis::vec3 target{0, 0, 0};
 	ruis::vec3 up{0, 1, 0};
 
 	ruis::real fovy{utki::pi / 2};
@@ -61,9 +61,9 @@ class scene
 public:
 	std::string name;
 
-	std::vector<utki::shared_ref<node>> nodes;
-	std::vector<utki::shared_ref<camera>> cameras;
-	std::vector<utki::shared_ref<light>> lights;
+	std::vector<utki::shared_ref<node>> nodes{};
+	std::vector<utki::shared_ref<camera>> cameras{};
+	std::vector<utki::shared_ref<light>> lights{};
 
 	std::shared_ptr<camera> active_camera;
 
