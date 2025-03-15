@@ -51,7 +51,11 @@ gltf_loader::gltf_loader(ruis::render::context& render_context) :
 
 namespace {
 
-int read_int(const jsondom::value& json, const std::string& name, const int default_value = -1)
+int read_int(
+	const jsondom::value& json, //
+	const std::string& name,
+	const int default_value = -1
+)
 {
 	auto it = json.object().find(name);
 	if (it != json.object().end())
@@ -60,7 +64,11 @@ int read_int(const jsondom::value& json, const std::string& name, const int defa
 	return default_value;
 }
 
-uint32_t read_uint(const jsondom::value& json, const std::string& name, const uint32_t default_value = 0)
+uint32_t read_uint(
+	const jsondom::value& json, //
+	const std::string& name,
+	const uint32_t default_value = 0
+)
 {
 	auto it = json.object().find(name);
 	if (it != json.object().end())
@@ -69,7 +77,11 @@ uint32_t read_uint(const jsondom::value& json, const std::string& name, const ui
 	return default_value;
 }
 
-std::string read_string(const jsondom::value& json, const std::string& name, const std::string default_value = "")
+std::string read_string(
+	const jsondom::value& json, //
+	const std::string& name,
+	const std::string default_value = ""
+)
 {
 	auto it = json.object().find(name);
 	if (it != json.object().end())
@@ -78,7 +90,11 @@ std::string read_string(const jsondom::value& json, const std::string& name, con
 	return default_value;
 }
 
-std::vector<uint32_t> read_uint_array(const jsondom::value& json, const std::string& name, uint32_t dafault_value = 0)
+std::vector<uint32_t> read_uint_array(
+	const jsondom::value& json, //
+	const std::string& name,
+	uint32_t dafault_value = 0
+)
 {
 	std::vector<uint32_t> arr;
 	auto it = json.object().find(name);

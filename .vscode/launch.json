@@ -29,7 +29,7 @@
 			"type": "cppdbg",
 			"request": "launch",
 			"program": "${workspaceFolder}/tests/unit/out/dbg/tests",
-			"args": [],
+			"args": ["--test=hierarchy", "--suite=scene"],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}/tests/unit",
 			"environment": [],

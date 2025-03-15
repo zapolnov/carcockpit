@@ -15,6 +15,7 @@ this_ldlibs += -l tst -l utki -l papki -l ruis-render-null
 this_ldlibs += -l jsondom
 this_ldlibs += -l rasterimage
 this_ldlibs += -l m
+this_ldlibs += -l ruis
 this_ldlibs += -l ruisapp-opengles-xorg # TODO: remove when move gltf to ruis
 
 this_no_install := true
