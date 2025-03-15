@@ -149,6 +149,7 @@ struct sampler_l {
 
 class gltf_loader
 {
+	// NOLINTNEXTLINE(clang-analyzer-webkit.NoUncountedMemberChecker, "false-positive")
 	ruis::render::context& render_context;
 
 	utki::span<const uint8_t> glb_binary_buffer;
