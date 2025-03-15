@@ -32,9 +32,7 @@ ruis::mat4 node::get_transformation_matrix() const
 
 		const auto& trs = std::get<trs_transformation>(this->transformation);
 
-		ruis::mat4 m;
-
-		m.set_identity();
+		auto m = ruis::mat4().set_identity();
 		m.translate(trs.translation);
 		m.rotate(trs.rotation);
 		m.scale(trs.scale);

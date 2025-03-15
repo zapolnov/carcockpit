@@ -32,9 +32,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 namespace ruis::render {
 
 struct trs_transformation {
-	ruis::vec3 translation;
-	ruis::quaternion rotation;
-	ruis::vec3 scale;
+	ruis::vec3 translation{0, 0, 0};
+	ruis::quaternion rotation{0, 0, 0, 1};
+	ruis::vec3 scale{1, 1, 1};
 };
 
 constexpr trs_transformation identity_trs_transformation{
