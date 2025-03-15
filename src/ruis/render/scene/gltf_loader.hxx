@@ -149,7 +149,7 @@ struct sampler_l {
 
 class gltf_loader
 {
-	ruis::render::factory& factory_v;
+	ruis::render::context& render_context;
 
 	utki::span<const uint8_t> glb_binary_buffer;
 
@@ -203,7 +203,7 @@ class gltf_loader
 
 public:
 	utki::shared_ref<scene> load(const papki::file& fi);
-	gltf_loader(ruis::render::factory& factory_v);
+	gltf_loader(ruis::render::context& render_context);
 };
 
 } // namespace ruis::render

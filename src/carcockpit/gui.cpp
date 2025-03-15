@@ -94,7 +94,7 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                                         .dims = {ruis::dim::fill, ruis::dim::fill}
                                     },
                                     .image_params = {
-                                        .img = c.get().loader.load<ruis::res::image>("img_gauge_scale")
+                                        .img = c.get().loader().load<ruis::res::image>("img_gauge_scale")
                                     }
                                 }
                             ),
@@ -108,8 +108,8 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                                         .id = "gauge"s
                                     },
                                     .params = {
-                                        .arrow = c.get().loader.load<ruis::res::image>("img_gauge_arrow"),
-                                        .shadow = c.get().loader.load<ruis::res::image>("img_gauge_arrow_shadow"),
+                                        .arrow = c.get().loader().load<ruis::res::image>("img_gauge_arrow"),
+                                        .shadow = c.get().loader().load<ruis::res::image>("img_gauge_arrow_shadow"),
                                         .arm_fraction = 0.75, // NOLINT
                                         .start_angle_rad = utki::deg_to_rad(-225.0), // NOLINT
                                         .end_angle_rad = utki::deg_to_rad(45.0) // NOLINT
@@ -140,7 +140,7 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                                 .smooth_navigation_zoom = true,
                                 .orbit_angle_upper_limit = utki::pi / 4,
 		                        .orbit_angle_lower_limit = utki::pi / 4,
-                                .environment_cube = c.get().loader.load<ruis::res::texture_cube>("tex_cube_env_castle").to_shared_ptr()                               
+                                .environment_cube = c.get().loader().load<ruis::res::texture_cube>("tex_cube_env_castle").to_shared_ptr()                               
                             }
                         }
                     ),

@@ -30,12 +30,14 @@ using namespace ruis::render;
 scene_renderer::scene_renderer(utki::shared_ref<ruis::context> c) :
 	context_v(std::move(c))
 {
-	texture_default_black = context_v.get().loader.load<ruis::res::texture_2d>("texture_default_black").to_shared_ptr();
-	texture_default_white = context_v.get().loader.load<ruis::res::texture_2d>("texture_default_white").to_shared_ptr();
+	texture_default_black =
+		context_v.get().loader().load<ruis::res::texture_2d>("texture_default_black").to_shared_ptr();
+	texture_default_white =
+		context_v.get().loader().load<ruis::res::texture_2d>("texture_default_white").to_shared_ptr();
 	texture_default_normal =
-		context_v.get().loader.load<ruis::res::texture_2d>("texture_default_normal").to_shared_ptr();
+		context_v.get().loader().load<ruis::res::texture_2d>("texture_default_normal").to_shared_ptr();
 	texture_default_environment_cube =
-		context_v.get().loader.load<ruis::res::texture_cube>("tex_cube_env_hata").to_shared_ptr();
+		context_v.get().loader().load<ruis::res::texture_cube>("tex_cube_env_hata").to_shared_ptr();
 
 	prepare_fullscreen_quad_vao();
 }
@@ -87,7 +89,7 @@ void scene_renderer::render(const ruis::vec2& dims, const ruis::mat4& viewport_m
 	}
 
 	{
-		auto& r = this->context_v.get().renderer.get();
+		auto& r = this->context_v.get().ren().render_context.get();
 		bool depth = r.is_depth_enabled();
 		r.enable_depth(false);
 		utki::scope_exit scope_exit([&r, depth]() {
@@ -112,19 +114,20 @@ void scene_renderer::prepare_fullscreen_quad_vao()
 		{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}}
 	};
 
-	auto pos_vbo = this->context_v.get().renderer.get().factory->create_vertex_buffer(utki::make_span(pos));
+	auto pos_vbo = this->context_v.get().ren().render_context.get().create_vertex_buffer(utki::make_span(pos));
 
 	// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
 	std::array<uint16_t, 36> indices = {
 		{0, 2, 1, 1, 2, 3}
 	};
 
-	auto indices_vbo = this->context_v.get().renderer.get().factory->create_index_buffer(utki::make_span(indices));
+	auto indices_vbo = this->context_v.get().ren().render_context.get().create_index_buffer(utki::make_span(indices));
 
 	this->fullscreen_quad_vao =
 		context_v.get()
-			.renderer.get()
-			.factory->create_vertex_array({pos_vbo}, indices_vbo, ruis::render::vertex_array::mode::triangles)
+			.ren()
+			.render_context.get()
+			.create_vertex_array({pos_vbo}, indices_vbo, ruis::render::vertex_array::mode::triangles)
 			.to_shared_ptr();
 }
 

@@ -38,7 +38,9 @@ gauge::gauge(utki::shared_ref<ruis::context> c, all_parameters p) :
 
 void gauge::on_lay_out()
 {
-	auto arrow_dim = this->params.arrow.get().dims().to<ruis::real>();
+	auto& c = this->context.get();
+
+	auto arrow_dim = this->params.arrow.get().dims(c.units).to<ruis::real>();
 	real arm_length = arrow_dim.x() * this->params.arm_fraction;
 
 	if (arm_length <= 0) {
@@ -47,13 +49,22 @@ void gauge::on_lay_out()
 
 	auto scale = (std::max(this->rect().d.x(), this->rect().d.y()) / 2) / arm_length;
 
-	this->arrow_tex = this->params.arrow.get().get(arrow_dim * scale).to_shared_ptr();
+	this->arrow_tex = this->params.arrow.get()
+						  .get(
+							  c.units, //
+							  arrow_dim * scale
+						  )
+						  .to_shared_ptr();
 
 	if (this->params.shadow) {
 		// TRACE(<< "this->shadow->dims() * scale = " << this->shadow->dims() *
 		// scale << std::endl)
-		this->shadow_tex =
-			this->params.shadow->get(this->params.shadow->dims().to<ruis::real>() * scale).to_shared_ptr();
+		this->shadow_tex = this->params.shadow
+							   ->get(
+								   c.units, //
+								   this->params.shadow->dims(c.units).to<ruis::real>() * scale
+							   )
+							   .to_shared_ptr();
 		// TRACE(<< "this->shadow_tex->dims() = " << this->shadow_tex->dims() <<
 		// std::endl)
 	}

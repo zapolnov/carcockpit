@@ -45,8 +45,8 @@ accessor::accessor(
 	component_type_v(component_type_v)
 {}
 
-gltf_loader::gltf_loader(ruis::render::factory& factory_v) :
-	factory_v(factory_v)
+gltf_loader::gltf_loader(ruis::render::context& render_context) :
+	render_context(render_context)
 {}
 
 namespace {
@@ -162,7 +162,7 @@ void gltf_loader::create_vertex_buffer_float(
 		d.skip(n_skip_bytes);
 	}
 
-	new_accessor.get().vbo = factory_v.create_vertex_buffer(utki::make_span(vertex_attribute_buffer));
+	new_accessor.get().vbo = this->render_context.create_vertex_buffer(utki::make_span(vertex_attribute_buffer));
 	new_accessor.get().data = std::move(vertex_attribute_buffer);
 }
 
@@ -231,7 +231,7 @@ utki::shared_ref<accessor> gltf_loader::read_accessor(const jsondom::value& acce
 				index_attribute_buffer.push_back(d.read_uint16_le());
 
 			new_accessor.get().data = index_attribute_buffer;
-			new_accessor.get().ibo = factory_v.create_index_buffer(utki::make_span(index_attribute_buffer));
+			new_accessor.get().ibo = this->render_context.create_index_buffer(utki::make_span(index_attribute_buffer));
 
 		} else if (new_accessor.get().component_type_v == accessor::component_type::act_unsigned_int) {
 			std::vector<uint32_t> index_attribute_buffer;
@@ -241,7 +241,7 @@ utki::shared_ref<accessor> gltf_loader::read_accessor(const jsondom::value& acce
 				index_attribute_buffer.push_back(d.read_uint32_le());
 
 			new_accessor.get().data = index_attribute_buffer;
-			new_accessor.get().ibo = factory_v.create_index_buffer(utki::make_span(index_attribute_buffer));
+			new_accessor.get().ibo = this->render_context.create_index_buffer(utki::make_span(index_attribute_buffer));
 		}
 		// TODO: memory optimization: in case GLTF says that index type is 32 bit, but still provides less than 65536
 		// vertices, then there is no reason to use 32 bit index, we can convert it to 16 bit index
@@ -419,12 +419,15 @@ utki::shared_ref<ruis::render::texture_2d> gltf_loader::read_texture(const jsond
 		throw std::invalid_argument("gltf: unknown texture image format");
 	}
 
-	ruis::render::factory::texture_2d_parameters tex_params; // TODO: fill texparams properly based on gltf file
+	ruis::render::context::texture_2d_parameters tex_params; // TODO: fill texparams properly based on gltf file
 	tex_params.mag_filter = ruis::render::texture_2d::filter::linear;
 	tex_params.min_filter = ruis::render::texture_2d::filter::linear;
 	tex_params.mipmap = texture_2d::mipmap::linear;
 
-	return factory_v.create_texture_2d(std::move(imvar), tex_params);
+	return this->render_context.create_texture_2d(
+		std::move(imvar), //
+		tex_params
+	);
 }
 
 utki::shared_ref<material> gltf_loader::read_material(const jsondom::value& material_json)
@@ -735,10 +738,10 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 		// need to flip the tangent basis to make normals from normal map point towards triangle normal direction.
 	}
 
-	auto tangents_vbo = factory_v.create_vertex_buffer(tangents);
-	auto bitangents_vbo = factory_v.create_vertex_buffer(bitangents);
+	auto tangents_vbo = this->render_context.create_vertex_buffer(tangents);
+	auto bitangents_vbo = this->render_context.create_vertex_buffer(bitangents);
 
-	auto vao = factory_v.create_vertex_array(
+	auto vao = this->render_context.create_vertex_array(
 		{utki::shared_ref<ruis::render::vertex_buffer>(position_accessor.get().vbo),
 		 utki::shared_ref<ruis::render::vertex_buffer>(texcoord_0_accessor.get().vbo),
 		 utki::shared_ref<ruis::render::vertex_buffer>(normal_accessor.get().vbo),
