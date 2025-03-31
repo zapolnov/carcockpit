@@ -28,12 +28,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <utki/math.hpp>
 
 namespace ruis {
-class gauge : public ruis::blending_widget, public ruis::fraction_widget, virtual public ruis::widget
+class gauge :
+	public ruis::blending_widget, //
+	public ruis::fraction_widget,
+	virtual public ruis::widget
 {
 public:
 	struct parameters {
-		utki::shared_ref<ruis::res::image> arrow;
-		std::shared_ptr<ruis::res::image> shadow;
+		utki::shared_ref<const ruis::res::image> arrow;
+		std::shared_ptr<const ruis::res::image> shadow;
 
 		real arm_fraction = 1;
 

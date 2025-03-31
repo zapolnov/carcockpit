@@ -52,7 +52,7 @@ void scene_renderer::set_scene(std::shared_ptr<ruis::render::scene> scene_v)
 	this->scene_v = scene_v;
 }
 
-void scene_renderer::set_environment_cube(std::shared_ptr<ruis::res::texture_cube> texture_environment_cube)
+void scene_renderer::set_environment_cube(std::shared_ptr<const ruis::res::texture_cube> texture_environment_cube)
 {
 	this->texture_environment_cube = texture_environment_cube;
 }

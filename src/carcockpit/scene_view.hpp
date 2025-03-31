@@ -79,7 +79,7 @@ public:
 		bool smooth_navigation_zoom = true;
 		ruis::real orbit_angle_upper_limit = utki::pi / 2;
 		ruis::real orbit_angle_lower_limit = utki::pi / 2;
-		std::shared_ptr<ruis::res::texture_cube> environment_cube;
+		std::shared_ptr<const ruis::res::texture_cube> environment_cube;
 	};
 
 private:
