@@ -26,7 +26,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 namespace carcockpit {
 
 const ruisapp::application_factory app_fac([](auto executable, auto args) {
-	return create_application(executable, args);
+	return make_application(executable, args);
 });
 
 } // namespace carcockpit

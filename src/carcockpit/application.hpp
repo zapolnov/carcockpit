@@ -51,6 +51,9 @@ public:
 	ruis::render::shader_pbr shader_pbr_v;
 };
 
-std::unique_ptr<application> create_application(std::string_view executable, utki::span<const char*> args);
+std::unique_ptr<application> make_application(
+	std::string_view executable, //
+	utki::span<std::string_view> args
+);
 
 } // namespace carcockpit

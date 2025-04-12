@@ -29,7 +29,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using namespace carcockpit;
 using namespace std::string_literals;
 
-application::application(bool window, std::string_view res_path) :
+application::application(bool window,//
+	 std::string_view res_path) :
 	ruisapp::application( //
 		std::string(app_name),
 		[]() {
@@ -61,7 +62,10 @@ application::application(bool window, std::string_view res_path) :
 	this->gui.set_root(std::move(kp));
 }
 
-std::unique_ptr<application> carcockpit::create_application(std::string_view executable, utki::span<const char*> args)
+std::unique_ptr<application> carcockpit::make_application(
+	std::string_view executable, //
+	utki::span<std::string_view> args
+)
 {
 	bool window = false;
 
