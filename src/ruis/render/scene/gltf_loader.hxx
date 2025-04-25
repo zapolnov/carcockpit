@@ -33,19 +33,25 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace ruis::render {
 
-struct buffer_view // currently we support only one data buffer, the single data buffer located in the .glb file
-{
+// currently we support only one data buffer, the single data buffer located in the .glb file
+struct buffer_view {
 	uint32_t byte_length;
 	uint32_t byte_offset;
 	uint32_t byte_stride;
 
+	// these explicit enum item numbers are from glTF spec
 	enum class target {
 		undefined = 0,
 		array_buffer = 34962,
 		element_array_buffer = 34963
 	} target_v;
 
-	buffer_view(uint32_t byte_length, uint32_t byte_offset, uint32_t byte_stride, target target_v) :
+	buffer_view(
+		uint32_t byte_length, //
+		uint32_t byte_offset,
+		uint32_t byte_stride,
+		target target_v
+	) :
 		byte_length(byte_length),
 		byte_offset(byte_offset),
 		byte_stride(byte_stride),
@@ -78,6 +84,7 @@ struct accessor {
 		mat4 = 16
 	} type_v;
 
+	// these explicit enum item numbers are from glTF spec
 	enum class component_type {
 		undefined = 0,
 		act_signed_byte = 5120,
@@ -94,7 +101,7 @@ struct accessor {
 	vertex_data_type data;
 
 	accessor(
-		utki::shared_ref<buffer_view> bv,
+		utki::shared_ref<buffer_view> bv, //
 		uint32_t count,
 		uint32_t byte_offset,
 		type type_v,
@@ -105,13 +112,19 @@ struct accessor {
 struct image_l {
 	std::string name;
 	utki::shared_ref<buffer_view> bv;
+
+	// these explicit enum item numbers are from glTF spec
 	enum class mime_type {
 		undefined = 0,
 		image_jpeg = 1,
 		image_png = 2
 	} mime_type_v;
 
-	image_l(std::string name, utki::shared_ref<buffer_view> bv, mime_type mime_type_v) :
+	image_l(
+		std::string name, //
+		utki::shared_ref<buffer_view> bv,
+		mime_type mime_type_v
+	) :
 		name(std::move(name)),
 		bv(std::move(bv)),
 		mime_type_v(mime_type_v)
@@ -119,6 +132,7 @@ struct image_l {
 };
 
 struct sampler_l {
+	// these explicit enum item numbers are from glTF spec
 	enum class filter {
 		nearest = 9728,
 		linear = 9729,
@@ -128,6 +142,7 @@ struct sampler_l {
 		linear_mipmap_linear = 9987
 	};
 
+	// these explicit enum item numbers are from glTF spec
 	enum class wrap {
 		clamp_to_edge = 33071,
 		mirrored_repeat = 33648,
@@ -139,7 +154,12 @@ struct sampler_l {
 	wrap wrap_s;
 	wrap wrap_t;
 
-	sampler_l(filter min, filter mag, wrap wrap_s, wrap wrap_t) :
+	sampler_l(
+		filter min, //
+		filter mag,
+		wrap wrap_s,
+		wrap wrap_t
+	) :
 		min(min),
 		mag(mag),
 		wrap_s(wrap_s),
@@ -166,11 +186,12 @@ class gltf_loader
 	std::vector<utki::shared_ref<sampler_l>> samplers;
 	std::vector<utki::shared_ref<image_l>> images;
 
-	std::vector<std::vector<uint32_t>> child_indices; // storage for node child hierarchy (only during loading stage)
+	// storage for node child hierarchy (only during loading stage)
+	std::vector<std::vector<uint32_t>> child_indices;
 
 	template <typename tp_type>
-	void create_vertex_buffer_float(
-		utki::shared_ref<ruis::render::accessor>,
+	void make_vertex_buffer_float(
+		utki::shared_ref<ruis::render::accessor>, //
 		utki::span<const uint8_t> buffer,
 		uint32_t acc_count,
 		uint32_t acc_stride
@@ -178,14 +199,14 @@ class gltf_loader
 
 	template <typename tp_type>
 	std::vector<utki::shared_ref<tp_type>> read_root_array(
-		std::function<tp_type(const jsondom::value& j)> read_func,
+		std::function<tp_type(const jsondom::value& j)> read_func, //
 		const jsondom::value& root_json,
 		const std::string& name
 	);
 
 	template <typename tp_type>
-	utki::shared_ref<ruis::render::vertex_array> create_vao_with_tangent_space(
-		utki::shared_ref<accessor> index_accessor,
+	utki::shared_ref<ruis::render::vertex_array> make_vao_with_tangent_space(
+		utki::shared_ref<accessor> index_accessor, //
 		utki::shared_ref<accessor> position_accessor,
 		utki::shared_ref<accessor> texcoord_0_accessor,
 		utki::shared_ref<accessor> normal_accessor

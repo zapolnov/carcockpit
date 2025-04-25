@@ -49,14 +49,23 @@ void scene::update(uint32_t dt)
 ruis::mat4 camera::get_projection_matrix(ruis::real aspect_ratio)
 {
 	auto projection = ruis::mat4().set_identity();
-	projection.set_perspective(fovy, aspect_ratio, near, far);
+	projection.set_perspective(
+		fovy, //
+		aspect_ratio,
+		near,
+		far
+	);
 	return projection;
 }
 
 ruis::mat4 camera::get_view_matrix()
 {
 	auto view = ruis::mat4().set_identity();
-	view.set_look_at(pos, target, up);
+	view.set_look_at(
+		pos, //
+		target,
+		up
+	);
 	return view;
 }
 
@@ -65,7 +74,10 @@ ruis::vec3 camera::to_view_coords(ruis::vec3 vec)
 	return get_view_matrix() * vec;
 }
 
-light::light(ruis::vec4 pos, ruis::vec3 intensity) :
+light::light(
+	ruis::vec4 pos, //
+	ruis::vec3 intensity
+) :
 	pos(pos),
 	intensity(intensity)
 {}

@@ -149,7 +149,7 @@ utki::shared_ref<buffer_view> gltf_loader::read_buffer_view(const jsondom::value
 }
 
 template <typename tp_type>
-void gltf_loader::create_vertex_buffer_float(
+void gltf_loader::make_vertex_buffer_float(
 	utki::shared_ref<ruis::render::accessor> new_accessor,
 	utki::span<const uint8_t> buffer,
 	uint32_t acc_count, // in elements (e.g. a whole vec3)
@@ -223,15 +223,35 @@ utki::shared_ref<accessor> gltf_loader::read_accessor(const jsondom::value& acce
 
 	if (new_accessor.get().component_type_v == accessor::component_type::act_float) {
 		if (new_accessor.get().type_v == accessor::type::scalar)
-			create_vertex_buffer_float<float>(new_accessor, buf, acc_count, bv_stride);
+			make_vertex_buffer_float<float>(
+				new_accessor, //
+				buf,
+				acc_count,
+				bv_stride
+			);
 		else if (new_accessor.get().type_v == accessor::type::vec2)
-			create_vertex_buffer_float<ruis::vec2>(new_accessor, buf, acc_count, bv_stride);
+			make_vertex_buffer_float<ruis::vec2>(
+				new_accessor, //
+				buf,
+				acc_count,
+				bv_stride
+			);
 		else if (new_accessor.get().type_v == accessor::type::vec3)
-			create_vertex_buffer_float<ruis::vec3>(new_accessor, buf, acc_count, bv_stride);
+			make_vertex_buffer_float<ruis::vec3>(
+				new_accessor, //
+				buf,
+				acc_count,
+				bv_stride
+			);
 		else if (new_accessor.get().type_v == accessor::type::vec4)
-			create_vertex_buffer_float<ruis::vec4>(new_accessor, buf, acc_count, bv_stride);
+			make_vertex_buffer_float<ruis::vec4>(
+				new_accessor, //
+				buf,
+				acc_count,
+				bv_stride
+			);
 		else {
-			throw std::logic_error("Matrix vertex attributes currently not supported");
+			throw std::logic_error("Matrix vertex attributes are currently not supported");
 		}
 
 	} else if ((new_accessor.get().component_type_v == accessor::component_type::act_unsigned_short ||
@@ -299,7 +319,7 @@ utki::shared_ref<mesh> gltf_loader::read_mesh(const jsondom::value& mesh_json)
 			continue;
 
 		if (accessors[index_accessor].get().component_type_v == accessor::component_type::act_unsigned_int) {
-			auto vao = create_vao_with_tangent_space<uint32_t>(
+			auto vao = make_vao_with_tangent_space<uint32_t>(
 				accessors[index_accessor],
 				accessors[position_accessor],
 				accessors[texcoord_0_accessor],
@@ -309,7 +329,7 @@ utki::shared_ref<mesh> gltf_loader::read_mesh(const jsondom::value& mesh_json)
 			auto material_v = material_index >= 0 ? materials[material_index] : utki::make_shared<material>();
 			primitives.push_back(utki::make_shared<primitive>(vao, material_v));
 		} else if (accessors[index_accessor].get().component_type_v == accessor::component_type::act_unsigned_short) {
-			auto vao = create_vao_with_tangent_space<uint16_t>(
+			auto vao = make_vao_with_tangent_space<uint16_t>(
 				accessors[index_accessor],
 				accessors[position_accessor],
 				accessors[texcoord_0_accessor],
@@ -638,7 +658,7 @@ utki::shared_ref<scene> gltf_loader::load(const papki::file& fi)
 }
 
 template <typename tp_type>
-utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangent_space(
+utki::shared_ref<ruis::render::vertex_array> gltf_loader::make_vao_with_tangent_space(
 	utki::shared_ref<accessor> index_accessor,
 	utki::shared_ref<accessor> position_accessor,
 	utki::shared_ref<accessor> texcoord_0_accessor,
@@ -758,11 +778,16 @@ utki::shared_ref<ruis::render::vertex_array> gltf_loader::create_vao_with_tangen
 	auto bitangents_vbo = this->render_context.create_vertex_buffer(bitangents);
 
 	auto vao = this->render_context.create_vertex_array(
-		{utki::shared_ref<ruis::render::vertex_buffer>(position_accessor.get().vbo),
-		 utki::shared_ref<ruis::render::vertex_buffer>(texcoord_0_accessor.get().vbo),
-		 utki::shared_ref<ruis::render::vertex_buffer>(normal_accessor.get().vbo),
-		 tangents_vbo,
-		 bitangents_vbo},
+		// clang-format off
+		{
+			utki::shared_ref<ruis::render::vertex_buffer>(position_accessor.get().vbo),
+			utki::shared_ref<ruis::render::vertex_buffer>(texcoord_0_accessor.get().vbo),
+			utki::shared_ref<ruis::render::vertex_buffer>(normal_accessor.get().vbo),
+			tangents_vbo,
+			bitangents_vbo
+		},
+		// clang-format on
+		// TODO: check if ibo is guaranteed to be non-null
 		utki::shared_ref<ruis::render::index_buffer>(index_accessor.get().ibo),
 		ruis::render::vertex_array::mode::triangles
 	);

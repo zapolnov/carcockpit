@@ -30,14 +30,10 @@ using namespace ruis::render;
 scene_renderer::scene_renderer(utki::shared_ref<ruis::context> c) :
 	context_v(std::move(c))
 {
-	texture_default_black =
-		context_v.get().loader().load<ruis::res::texture_2d>("texture_default_black").to_shared_ptr();
-	texture_default_white =
-		context_v.get().loader().load<ruis::res::texture_2d>("texture_default_white").to_shared_ptr();
-	texture_default_normal =
-		context_v.get().loader().load<ruis::res::texture_2d>("texture_default_normal").to_shared_ptr();
-	texture_default_environment_cube =
-		context_v.get().loader().load<ruis::res::texture_cube>("tex_cube_env_hata").to_shared_ptr();
+	texture_default_black = context_v.get().loader().load<ruis::res::texture_2d>("texture_default_black");
+	texture_default_white = context_v.get().loader().load<ruis::res::texture_2d>("texture_default_white");
+	texture_default_normal = context_v.get().loader().load<ruis::res::texture_2d>("texture_default_normal");
+	texture_default_environment_cube = context_v.get().loader().load<ruis::res::texture_cube>("tex_cube_env_hata");
 
 	prepare_fullscreen_quad_vao();
 }
@@ -62,7 +58,10 @@ void scene_renderer::set_external_camera(std::shared_ptr<ruis::render::camera> c
 	external_camera = cam;
 }
 
-void scene_renderer::render(const ruis::vec2& dims, const ruis::mat4& viewport_matrix)
+void scene_renderer::render(
+	const ruis::vec2& dims, //
+	const ruis::mat4& viewport_matrix
+)
 {
 	if (!scene_v)
 		return;
@@ -100,7 +99,7 @@ void scene_renderer::render(const ruis::vec2& dims, const ruis::mat4& viewport_m
 
 	ruis::mat4 root_model_matrix;
 	root_model_matrix.set_identity();
-	root_model_matrix.scale(scene_scaling_factor, scene_scaling_factor, scene_scaling_factor);
+	root_model_matrix.scale(scene_scaling_factor);
 
 	for (const auto& node_v : scene_v->nodes) {
 		this->render_node(node_v.get(), root_model_matrix);
@@ -123,12 +122,15 @@ void scene_renderer::prepare_fullscreen_quad_vao()
 
 	auto indices_vbo = this->context_v.get().ren().render_context.get().create_index_buffer(utki::make_span(indices));
 
-	this->fullscreen_quad_vao =
-		context_v.get()
-			.ren()
-			.render_context.get()
-			.create_vertex_array({pos_vbo}, indices_vbo, ruis::render::vertex_array::mode::triangles)
-			.to_shared_ptr();
+	this->fullscreen_quad_vao = context_v.get()
+									.ren()
+									.render_context.get()
+									.create_vertex_array(
+										{pos_vbo}, //
+										indices_vbo,
+										ruis::render::vertex_array::mode::triangles
+									)
+									.to_shared_ptr();
 }
 
 void scene_renderer::render_environment()
@@ -141,10 +143,14 @@ void scene_renderer::render_environment()
 	);
 }
 
-void scene_renderer::render_node(const node& n, const ruis::mat4& parent_tree_model_matrix)
+void scene_renderer::render_node(
+	const node& n, //
+	const ruis::mat4& parent_tree_model_matrix
+)
 {
 	auto parent_model_matrix = parent_tree_model_matrix * n.get_transformation_matrix();
 
+	// TODO: why maybe_unused?
 	[[maybe_unused]] ruis::mat4 modelview_matrix = view_matrix * parent_model_matrix;
 	[[maybe_unused]] ruis::mat4 mvp_matrix = projection_matrix * modelview_matrix;
 
@@ -154,8 +160,9 @@ void scene_renderer::render_node(const node& n, const ruis::mat4& parent_tree_mo
 	// render the node itself
 	if (n.mesh_v) {
 		for (const auto& primitive : n.mesh_v->primitives) {
-			[[maybe_unused]] const auto& phong = carcockpit::application::inst().shader_phong_v;
-			[[maybe_unused]] const auto& advanced = carcockpit::application::inst().shader_pbr_v;
+			// TODO: remove phong?
+			// [[maybe_unused]] const auto& phong = carcockpit::application::inst().shader_phong_v;
+			const auto& pbr = carcockpit::application::inst().shader_pbr_v;
 
 			// choose shader and textures here, set material-specific uniforms
 
@@ -163,8 +170,8 @@ void scene_renderer::render_node(const node& n, const ruis::mat4& parent_tree_mo
 			const auto& tex_normal = primitive.get().material_v.get().tex_normal;
 			const auto& tex_arm = primitive.get().material_v.get().tex_arm;
 
-			advanced.render(
-				primitive.get().vao.get(),
+			pbr.render(
+				primitive.get().vao.get(), //
 				mvp_matrix,
 				modelview_matrix,
 				projection_matrix,
@@ -177,6 +184,7 @@ void scene_renderer::render_node(const node& n, const ruis::mat4& parent_tree_mo
 			);
 		}
 	}
+
 	// render children
 	for (const auto& node_v : n.children) {
 		this->render_node(node_v.get(), parent_model_matrix);

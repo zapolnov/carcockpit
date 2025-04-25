@@ -50,7 +50,10 @@ public:
 	ruis::vec4 pos{1, 1, 1, 1};
 	ruis::vec3 intensity{1, 1, 1};
 
-	light(ruis::vec4 pos, ruis::vec3 intensity);
+	light(
+		ruis::vec4 pos, //
+		ruis::vec3 intensity
+	);
 	light() = default;
 };
 
