@@ -4,7 +4,7 @@
 
 . configure dependency repos
 +
-- `cppfw`: https://github.com/cppfw/wiki/blob/master/enable_repo/enable_repo_debian.adoc
+- `cppfw`: https://github.com/cppfw/wiki/blob/main/enable_repo/enable_repo_debian.adoc
 - `llvm`: https://apt.llvm.org/
 
 . install dependencies, see list of packages in `debian/control.in` -> `Build-Depends:`
