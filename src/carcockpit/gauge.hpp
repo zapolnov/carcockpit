@@ -1,7 +1,7 @@
 /*
 carcockpit - Car cockpit example GUI project
 
-Copyright (C) 2024 Gagistech Oy <gagisechoy@gmail.com>
+Copyright (C) 2024-2025 Gagistech Oy <gagisechoy@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -58,7 +58,10 @@ private:
 	std::shared_ptr<const ruis::res::image::texture> shadow_tex;
 
 public:
-	gauge(utki::shared_ref<ruis::context> c, all_parameters params);
+	gauge(
+		utki::shared_ref<ruis::context> c, //
+		all_parameters params
+	);
 
 	void on_lay_out() override;
 

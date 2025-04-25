@@ -1,7 +1,7 @@
 /*
 carcockpit - Car cockpit example GUI project
 
-Copyright (C) 2024 Gagistech Oy <gagisechoy@gmail.com>
+Copyright (C) 2024-2025 Gagistech Oy <gagisechoy@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -25,13 +25,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using namespace ruis;
 
-gauge::gauge(utki::shared_ref<ruis::context> c, all_parameters p) :
-	widget( //
-		std::move(c),
-	 	std::move(p.layout_params),
+gauge::gauge(
+	utki::shared_ref<ruis::context> c, //
+	all_parameters p
+) :
+	widget(
+		std::move(c), //
+		std::move(p.layout_params),
 		std::move(p.widget_params)
 	),
-	blending_widget(this->context, std::move(p.blending_params)),
+	blending_widget(
+		this->context, //
+		std::move(p.blending_params)
+	),
 	fraction_widget(this->context, {}),
 	params(std::move(p.params))
 {}
@@ -57,16 +63,12 @@ void gauge::on_lay_out()
 						  .to_shared_ptr();
 
 	if (this->params.shadow) {
-		// TRACE(<< "this->shadow->dims() * scale = " << this->shadow->dims() *
-		// scale << std::endl)
 		this->shadow_tex = this->params.shadow
 							   ->get(
 								   c.units, //
 								   this->params.shadow->dims(c.units).to<ruis::real>() * scale
 							   )
 							   .to_shared_ptr();
-		// TRACE(<< "this->shadow_tex->dims() = " << this->shadow_tex->dims() <<
-		// std::endl)
 	}
 }
 

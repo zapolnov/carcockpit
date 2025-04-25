@@ -1,7 +1,7 @@
 /*
 carcockpit - Car cockpit example GUI project
 
-Copyright (C) 2024 Gagistech Oy <gagisechoy@gmail.com>
+Copyright (C) 2024-2025 Gagistech Oy <gagisechoy@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,7 +36,10 @@ class application : public ruisapp::application
 public:
 	const std::string res_path;
 
-	application(bool window, std::string_view res_path);
+	application(
+		bool window, //
+		std::string_view res_path
+	);
 
 	static constexpr std::string_view app_name = "carcockpit"sv;
 

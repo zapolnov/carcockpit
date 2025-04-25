@@ -1,7 +1,7 @@
 /*
 carcockpit - Car cockpit example GUI project
 
-Copyright (C) 2024 Gagistech Oy <gagisechoy@gmail.com>
+Copyright (C) 2024-2025 Gagistech Oy <gagisechoy@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,10 +29,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using namespace carcockpit;
 using namespace std::string_literals;
 
-application::application(bool window,//
-	 std::string_view res_path) :
-	ruisapp::application( //
-		std::string(app_name),
+application::application(
+	bool window, //
+	std::string_view res_path
+) :
+	ruisapp::application(
+		std::string(app_name), //
 		[]() {
 			// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
 			ruisapp::window_params wp(r4::vector2<unsigned>(1024, 600));
@@ -70,7 +72,10 @@ std::unique_ptr<application> carcockpit::make_application(
 	bool window = false;
 
 	// TODO: look in /usr/local/share/carcockpit first?
-	std::string res_path = utki::cat("/usr/share/"sv, application::app_name);
+	std::string res_path = utki::cat(
+		"/usr/share/"sv, //
+		application::app_name
+	);
 	// std::string res_path = "res/"s;
 
 	clargs::parser p;
@@ -81,7 +86,10 @@ std::unique_ptr<application> carcockpit::make_application(
 
 	p.add(
 		"res-path",
-		utki::cat("resources path, default = /usr/share/"sv, application::app_name),
+		utki::cat(
+			"resources path, default = /usr/share/"sv, //
+			application::app_name
+		),
 		[&](std::string_view v) {
 			res_path = v;
 		}
@@ -89,5 +97,8 @@ std::unique_ptr<application> carcockpit::make_application(
 
 	p.parse(args);
 
-	return std::make_unique<application>(window, res_path);
+	return std::make_unique<application>(
+		window, //
+		res_path
+	);
 }
