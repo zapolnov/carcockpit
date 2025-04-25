@@ -51,10 +51,11 @@ gltf_loader::gltf_loader(ruis::render::context& render_context) :
 
 namespace {
 
-int read_int(
+// TODO: rename to read_int32()
+int32_t read_int(
 	const jsondom::value& json, //
 	const std::string& name,
-	const int default_value = -1
+	const int32_t default_value = -1
 )
 {
 	auto it = json.object().find(name);
@@ -64,6 +65,7 @@ int read_int(
 	return default_value;
 }
 
+// TODO: rename to read_uint32()
 uint32_t read_uint(
 	const jsondom::value& json, //
 	const std::string& name,
@@ -402,35 +404,44 @@ utki::shared_ref<scene> gltf_loader::read_scene(const jsondom::value& scene_json
 	constexpr ruis::vec4 default_light_position{4, 4, 4, 1};
 	constexpr ruis::vec3 default_light_intensity{4, 4, 4};
 
-	if (new_scene.get().lights.size() == 0)
+	if (new_scene.get().lights.size() == 0) {
 		new_scene.get().lights.push_back(
-			utki::make_shared<ruis::render::light>(default_light_position, default_light_intensity)
+			utki::make_shared<ruis::render::light>(
+				default_light_position, //
+				default_light_intensity
+			)
 		);
+	}
 
 	return new_scene;
 }
 
-utki::shared_ref<image_l> gltf_loader::read_image(const jsondom::value& image_json)
+utki::shared_ref<image_view> gltf_loader::read_image_view(const jsondom::value& image_json)
 {
 	uint32_t buffer_view_index = read_uint(image_json, "bufferView");
 	std::string name = read_string(image_json, "name");
 	std::string mime_type_string = read_string(image_json, "mimeType");
 
-	image_l::mime_type mt = mime_type_string == "image/jpeg" ? image_l::mime_type::image_jpeg
-		: mime_type_string == "image/png"                    ? image_l::mime_type::image_png
-															 : image_l::mime_type::undefined;
+	// TODO: rewrite with if-else instead of ternary operators
+	image_view::mime_type mt = mime_type_string == "image/jpeg" ? image_view::mime_type::image_jpeg
+		: mime_type_string == "image/png"                       ? image_view::mime_type::image_png
+																: image_view::mime_type::undefined;
 
-	auto new_image = utki::make_shared<image_l>(name, buffer_views[buffer_view_index], mt);
+	auto new_image = utki::make_shared<image_view>(
+		name, //
+		buffer_views[buffer_view_index],
+		mt
+	);
 	return new_image;
 }
 
-utki::shared_ref<sampler_l> gltf_loader::read_sampler(const jsondom::value& sampler_json)
+utki::shared_ref<sampler> gltf_loader::read_sampler(const jsondom::value& sampler_json)
 {
-	auto new_sampler = utki::make_shared<sampler_l>(
-		static_cast<sampler_l::filter>(read_uint(sampler_json, "minFilter")),
-		static_cast<sampler_l::filter>(read_uint(sampler_json, "magFilter")),
-		static_cast<sampler_l::wrap>(read_uint(sampler_json, "wrapS")),
-		static_cast<sampler_l::wrap>(read_uint(sampler_json, "wrapT"))
+	auto new_sampler = utki::make_shared<sampler>(
+		static_cast<sampler::filter>(read_uint(sampler_json, "minFilter")),
+		static_cast<sampler::filter>(read_uint(sampler_json, "magFilter")),
+		static_cast<sampler::wrap>(read_uint(sampler_json, "wrapS")),
+		static_cast<sampler::wrap>(read_uint(sampler_json, "wrapT"))
 	);
 	return new_sampler;
 }
@@ -443,19 +454,23 @@ utki::shared_ref<ruis::render::texture_2d> gltf_loader::read_texture(const jsond
 	auto image = images[image_index];
 	auto sampler = samplers[sampler_index];
 
-	auto image_span = glb_binary_buffer.subspan(image.get().bv.get().byte_offset, image.get().bv.get().byte_length);
+	auto image_span = glb_binary_buffer.subspan(
+		image.get().bv.get().byte_offset, //
+		image.get().bv.get().byte_length
+	);
 	const papki::span_file fi(image_span);
 
 	rasterimage::image_variant imvar;
-	if (image.get().mime_type_v == image_l::mime_type::image_png) {
+	if (image.get().mime_type_v == image_view::mime_type::image_png) {
 		imvar = rasterimage::read_png(fi);
-	} else if (image.get().mime_type_v == image_l::mime_type::image_jpeg) {
+	} else if (image.get().mime_type_v == image_view::mime_type::image_jpeg) {
 		imvar = rasterimage::read_jpeg(fi);
 	} else {
 		throw std::invalid_argument("gltf: unknown texture image format");
 	}
 
-	ruis::render::context::texture_2d_parameters tex_params; // TODO: fill texparams properly based on gltf file
+	// TODO: fill texparams properly based on gltf file
+	ruis::render::context::texture_2d_parameters tex_params;
 	tex_params.mag_filter = ruis::render::texture_2d::filter::linear;
 	tex_params.min_filter = ruis::render::texture_2d::filter::linear;
 	tex_params.mipmap = texture_2d::mipmap::linear;
@@ -471,9 +486,12 @@ utki::shared_ref<material> gltf_loader::read_material(const jsondom::value& mate
 	auto mat = utki::make_shared<material>();
 
 	mat.get().name = read_string(material_json, "name");
+
 	int diffuse_index = -1;
 	int normal_index = -1;
-	int arm_index = -1; // ambient metallic roughness
+
+	// arm is ambient-metalness-roughness
+	int arm_index = -1;
 
 	auto it = material_json.object().find("normalTexture");
 	if (it != material_json.object().end() && it->second.is_object()) {
@@ -492,12 +510,17 @@ utki::shared_ref<material> gltf_loader::read_material(const jsondom::value& mate
 		}
 	}
 
-	if (diffuse_index >= 0)
+	if (diffuse_index >= 0) {
 		mat.get().tex_diffuse = textures[diffuse_index];
-	if (normal_index >= 0)
+	}
+
+	if (normal_index >= 0) {
 		mat.get().tex_normal = textures[normal_index];
-	if (arm_index >= 0)
+	}
+
+	if (arm_index >= 0) {
 		mat.get().tex_arm = textures[arm_index];
+	}
 
 	return mat;
 }
@@ -586,7 +609,7 @@ utki::shared_ref<scene> gltf_loader::load(const papki::file& fi)
 	it = json.object().find("images");
 	if (it != json.object().end() && it->second.is_array()) {
 		for (const auto& sub_json : it->second.array()) {
-			images.push_back(read_image(sub_json));
+			images.push_back(read_image_view(sub_json));
 		}
 	}
 

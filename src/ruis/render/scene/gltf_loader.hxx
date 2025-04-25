@@ -59,14 +59,6 @@ struct buffer_view {
 	{}
 };
 
-using vertex_data_type = std::variant<
-	std::vector<float>,
-	std::vector<ruis::vec2>,
-	std::vector<ruis::vec3>,
-	std::vector<ruis::vec4>,
-	std::vector<uint16_t>,
-	std::vector<uint32_t>>;
-
 struct accessor {
 	utki::shared_ref<buffer_view> bv;
 	uint32_t count;
@@ -98,6 +90,14 @@ struct accessor {
 	std::shared_ptr<ruis::render::vertex_buffer> vbo;
 	std::shared_ptr<ruis::render::index_buffer> ibo;
 
+	using vertex_data_type = std::variant<
+		std::vector<float>,
+		std::vector<ruis::vec2>,
+		std::vector<ruis::vec3>,
+		std::vector<ruis::vec4>,
+		std::vector<uint16_t>,
+		std::vector<uint32_t>>;
+
 	vertex_data_type data;
 
 	accessor(
@@ -109,7 +109,8 @@ struct accessor {
 	);
 };
 
-struct image_l {
+// buffer_view to the image data
+struct image_view {
 	std::string name;
 	utki::shared_ref<buffer_view> bv;
 
@@ -120,7 +121,7 @@ struct image_l {
 		image_png = 2
 	} mime_type_v;
 
-	image_l(
+	image_view(
 		std::string name, //
 		utki::shared_ref<buffer_view> bv,
 		mime_type mime_type_v
@@ -131,7 +132,7 @@ struct image_l {
 	{}
 };
 
-struct sampler_l {
+struct sampler {
 	// these explicit enum item numbers are from glTF spec
 	enum class filter {
 		nearest = 9728,
@@ -154,7 +155,7 @@ struct sampler_l {
 	wrap wrap_s;
 	wrap wrap_t;
 
-	sampler_l(
+	sampler(
 		filter min, //
 		filter mag,
 		wrap wrap_s,
@@ -183,9 +184,10 @@ class gltf_loader
 
 	std::vector<utki::shared_ref<material>> materials;
 	std::vector<utki::shared_ref<ruis::render::texture_2d>> textures;
-	std::vector<utki::shared_ref<sampler_l>> samplers;
-	std::vector<utki::shared_ref<image_l>> images;
+	std::vector<utki::shared_ref<sampler>> samplers;
+	std::vector<utki::shared_ref<image_view>> images;
 
+	// TODO: why does it have to be a class member? Can't be a local variable?
 	// storage for node child hierarchy (only during loading stage)
 	std::vector<std::vector<uint32_t>> child_indices;
 
@@ -218,8 +220,8 @@ class gltf_loader
 	utki::shared_ref<node> read_node(const jsondom::value& node_json);
 	utki::shared_ref<scene> read_scene(const jsondom::value& scene_json);
 
-	utki::shared_ref<image_l> read_image(const jsondom::value& image_json);
-	utki::shared_ref<sampler_l> read_sampler(const jsondom::value& sampler_json);
+	utki::shared_ref<image_view> read_image_view(const jsondom::value& image_json);
+	utki::shared_ref<sampler> read_sampler(const jsondom::value& sampler_json);
 	utki::shared_ref<ruis::render::texture_2d> read_texture(const jsondom::value& texture_json);
 	utki::shared_ref<material> read_material(const jsondom::value& material_json);
 
