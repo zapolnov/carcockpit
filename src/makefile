@@ -20,6 +20,8 @@ $(eval $(prorab-build-lib))
 
 this_src_dir := ruis
 $(eval $(prorab-clang-format))
+this_license_file := ../LICENSE
+$(eval $(prorab-license))
 
 # =====================================
 # ============== library ==============
