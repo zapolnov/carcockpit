@@ -27,5 +27,5 @@ make
 
 . run the app
 ....
-make run-app
+make run-app-opengles-xorg
 ....
