@@ -113,19 +113,19 @@ void scene_renderer::prepare_fullscreen_quad_vao()
 		{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}}
 	};
 
-	auto pos_vbo = this->context_v.get().ren().render_context.get().create_vertex_buffer(utki::make_span(pos));
+	auto pos_vbo = this->context_v.get().ren().render_context.get().make_vertex_buffer(utki::make_span(pos));
 
 	// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
 	std::array<uint16_t, 36> indices = {
 		{0, 2, 1, 1, 2, 3}
 	};
 
-	auto indices_vbo = this->context_v.get().ren().render_context.get().create_index_buffer(utki::make_span(indices));
+	auto indices_vbo = this->context_v.get().ren().render_context.get().make_index_buffer(utki::make_span(indices));
 
 	this->fullscreen_quad_vao = context_v.get()
 									.ren()
 									.render_context.get()
-									.create_vertex_array(
+									.make_vertex_array(
 										{pos_vbo}, //
 										indices_vbo,
 										ruis::render::vertex_array::mode::triangles
