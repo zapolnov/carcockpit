@@ -111,7 +111,12 @@ void gauge::render(const matrix4& matrix) const
 		m *= matrix4().set_identity().translate(shadow_offset, shadow_offset) * mmm;
 		m.scale(this->shadow_tex->dims().to<ruis::real>());
 		m.translate(-(1 - this->params.arm_fraction) * arrow_fraction - (1 - arrow_fraction) / 2, -half);
-		this->shadow_tex->render(m);
+
+		ASSERT(this->shadow_tex)
+		this->context.get().ren().render(
+			m, //
+			*this->shadow_tex
+		);
 	}
 
 	{
@@ -119,6 +124,11 @@ void gauge::render(const matrix4& matrix) const
 		m *= mmm;
 		m.scale(this->arrow_tex->dims().to<ruis::real>());
 		m.translate(-(1 - this->params.arm_fraction), -half);
-		this->arrow_tex->render(m);
+
+		ASSERT(this->arrow_tex)
+		this->context.get().ren().render(
+			m, //
+			*this->arrow_tex
+		);
 	}
 }

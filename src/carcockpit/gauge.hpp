@@ -54,8 +54,8 @@ public:
 private:
 	parameters params;
 
-	std::shared_ptr<const ruis::res::image::texture> arrow_tex;
-	std::shared_ptr<const ruis::res::image::texture> shadow_tex;
+	std::shared_ptr<const ruis::render::texture_2d> arrow_tex;
+	std::shared_ptr<const ruis::render::texture_2d> shadow_tex;
 
 public:
 	gauge(
