@@ -71,12 +71,15 @@ std::unique_ptr<application> carcockpit::make_application(
 {
 	bool window = false;
 
+#ifdef _WIN32
+	std::string res_path = "res/"s;
+#else
 	// TODO: look in /usr/local/share/carcockpit first?
 	std::string res_path = utki::cat(
 		"/usr/share/"sv, //
 		application::app_name
 	);
-	// std::string res_path = "res/"s;
+#endif
 
 	clargs::parser p;
 

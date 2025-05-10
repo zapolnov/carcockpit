@@ -41,7 +41,11 @@ declare_executable(${name}
     INCLUDE_DIRECTORIES
         "${CMAKE_CURRENT_SOURCE_DIR}/../../src"
     DEPENDENCIES
+        clargs
+        jsondom
         ruis
         ruis-render-opengles
-        ruisapp
+        ruisapp-opengles
+    EXTERNAL_DEPENDENCIES
+        GLESv2
 )
