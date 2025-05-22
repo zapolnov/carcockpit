@@ -445,6 +445,102 @@ utki::shared_ref<scene> gltf_loader::read_scene(const jsondom::value& scene_json
 	return new_scene;
 }
 
+utki::shared_ref<animation> gltf_loader::read_animation(const jsondom::value& anim_json)
+{
+	auto new_animation = utki::make_shared<animation>();
+
+	auto it = anim_json.object().find("name");
+	if (it != anim_json.object().end())
+		new_animation.get().name = it->second.string();
+
+	it = anim_json.object().find("samplers");
+	if (it != anim_json.object().end() && it->second.is_array()) {
+		for (const auto& sampler_json : it->second.array()) {
+			if (!sampler_json.is_object())
+				continue;
+
+			auto interpolation = sampler_json.object().find("interpolation");
+			auto input = sampler_json.object().find("input");
+			auto output = sampler_json.object().find("output");
+			if (interpolation == sampler_json.object().end() ||
+				input == sampler_json.object().end() ||
+				output == sampler_json.object().end())
+				continue;
+
+			auto sampler = std::make_shared<animation_sampler>();
+
+			const auto& interpolation_s = interpolation->second.string();
+			if (interpolation_s == "LINEAR")
+				sampler->interpolation_v = animation_sampler::interpolation::linear;
+			else if (interpolation_s == "STEP")
+				sampler->interpolation_v = animation_sampler::interpolation::step;
+			else if (interpolation_s == "CUBICSPLINE")
+				sampler->interpolation_v = animation_sampler::interpolation::cubic_spline;
+			else
+				throw std::invalid_argument("gltf: unsupported sampler interpolation " + interpolation_s);
+
+			int64_t input_index = input->second.number().to_int64();
+			if (input_index < 0 || input_index >= this->accessors.size())
+				throw std::invalid_argument("gltf: invalid animation input accessor index " + std::to_string(input_index));
+
+			sampler->input = this->accessors[input_index];
+
+			int64_t output_index = output->second.number().to_int64();
+			if (output_index < 0 || output_index >= this->accessors.size())
+				throw std::invalid_argument("gltf: invalid animation output accessor index " + std::to_string(output_index));
+
+			sampler->output = this->accessors[output_index];
+
+			new_animation.get().samplers.push_back(std::move(sampler));
+		}
+	}
+
+	it = anim_json.object().find("channels");
+	if (it != anim_json.object().end() && it->second.is_array()) {
+		for (const auto& channel_json : it->second.array()) {
+			if (!channel_json.is_object())
+				continue;
+
+			auto sampler = channel_json.object().find("sampler");
+			auto target = channel_json.object().find("target");
+			if (sampler == channel_json.object().end() ||
+				target == channel_json.object().end() ||
+				!target->second.is_object())
+				continue;
+
+			auto target_node = target->second.object().find("node");
+			auto target_path = target->second.object().find("path");
+			if (target_node == target->second.object().end() ||
+				target_path == target->second.object().end())
+				continue;
+
+			int64_t sampler_index = sampler->second.number().to_int64();
+			if (sampler_index < 0 || sampler_index >= new_animation.get().samplers.size())
+				throw std::invalid_argument("gltf: invalid sampler index " + std::to_string(sampler_index));
+
+			animation_channel channel;
+
+			const auto& target_path_s = target_path->second.string();
+			if (target_path_s == "translation")
+				channel.target_path = animation_channel::path::translation;
+			else if (target_path_s == "rotation")
+				channel.target_path = animation_channel::path::rotation;
+			else if (target_path_s == "scale")
+				channel.target_path = animation_channel::path::scale;
+			else if (target_path_s == "weights")
+				channel.target_path = animation_channel::path::weights;
+			else
+				throw std::invalid_argument("gltf: unsupported animation channel path " + target_path_s);
+
+			channel.sampler = new_animation.get().samplers[sampler_index];
+
+			new_animation.get().channels.push_back(std::move(channel));
+		}
+	}
+
+	return new_animation;
+}
+
 utki::shared_ref<image_view> gltf_loader::read_image_view(const jsondom::value& image_json)
 {
 	uint32_t buffer_view_index = read_uint(image_json, "bufferView"sv);
@@ -704,6 +800,13 @@ utki::shared_ref<scene> gltf_loader::load(const papki::file& fi)
 		// this .gltf file is a library
 	} else {
 		active_scene = scenes[active_scene_index];
+	}
+
+	it = json.object().find("animations");
+	if (it != json.object().end() && it->second.is_array()) {
+		for (const auto& sub_json : it->second.array()) {
+			animations.push_back(read_animation(sub_json));
+		}
 	}
 
 	return active_scene;
