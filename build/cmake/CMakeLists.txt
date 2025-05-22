@@ -20,12 +20,12 @@ endif()
 set(srcs)
 add_source_directory(srcs
     "${CMAKE_CURRENT_SOURCE_DIR}/../../src/ruis"
-    PATTERNS "*.cpp" "*.hpp"
+    PATTERNS "*.cpp" "*.hpp" "*.hxx"
     RECURSIVE
 )
 add_source_directory(srcs
     "${CMAKE_CURRENT_SOURCE_DIR}/../../src/${name}"
-    PATTERNS "*.cpp" "*.hpp"
+    PATTERNS "*.cpp" "*.hpp" "*.hxx"
     RECURSIVE
 )
 

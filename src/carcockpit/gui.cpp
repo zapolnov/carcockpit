@@ -131,7 +131,8 @@ utki::shared_ref<ruis::key_proxy> carcockpit::make_root_widgets(utki::shared_ref
                             }
                             ,
                             .scene_params = {
-                                .file = utki::cat(carcockpit::application::inst().res_path, "samples_gltf/spray.glb"),
+                                .file = utki::cat(carcockpit::application::inst().res_path, "samples_gltf/Holofil-suzanne-monkey.glb"),
+                                .animations = { "Animation" },
                                 // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
                                 .scaling_factor = 10.0f,
                                 // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)

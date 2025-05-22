@@ -25,41 +25,28 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <r4/quaternion.hpp>
 #include <r4/vector.hpp>
+#include <utki/shared_ref.hpp>
 #include <ruis/config.hpp>
-
-#include "mesh.hpp"
+#include "animation.hpp"
 
 namespace ruis::render {
 
-struct animation;
+class animator
+{
+	utki::shared_ref<ruis::render::animation> animation;
+	float weight;
+	bool looping;
+	double time;
 
-struct trs_transformation {
-	ruis::vec3 translation{0, 0, 0};
-	ruis::quaternion rotation{0, 0, 0, 1};
-	ruis::vec3 scale{1, 1, 1};
-};
+public:
+	explicit animator(utki::shared_ref<ruis::render::animation> anim, float weight_coeff = 1.0f, bool loop = false);
+	animator(const animator&) = default;
+	animator(animator&&) = default;
+	animator& operator=(const animator&) = default;
+	animator& operator=(animator&&) = default;
+	virtual ~animator() = default;
 
-constexpr trs_transformation identity_trs_transformation{
-	.translation = {0, 0, 0},
-	.rotation = {0, 0, 0, 1},
-	.scale = {1, 1, 1}
-};
-
-using transformation_variant = std::variant<
-	trs_transformation,
-	ruis::mat4 //
-	>;
-
-struct node {
-	std::string name;
-
-	std::shared_ptr<mesh> mesh_v;
-
-	transformation_variant transformation;
-
-	std::vector<utki::shared_ref<node>> children;
-
-	ruis::mat4 get_transformation_matrix() const;
+	bool update(uint32_t dt);
 };
 
 } // namespace ruis::render

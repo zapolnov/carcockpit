@@ -21,6 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 #include "node.hpp"
+#include "animator.hpp"
 
 namespace ruis::render {
 
@@ -60,6 +61,7 @@ public:
 class scene
 {
 	uint32_t time = 0;
+	std::vector<utki::shared_ref<animator>> animators{};
 
 public:
 	std::string name;
@@ -67,6 +69,7 @@ public:
 	std::vector<utki::shared_ref<node>> nodes{};
 	std::vector<utki::shared_ref<camera>> cameras{};
 	std::vector<utki::shared_ref<light>> lights{};
+	std::vector<utki::shared_ref<animation>> animations{};
 
 	std::shared_ptr<camera> active_camera;
 
@@ -79,6 +82,9 @@ public:
 
 	std::shared_ptr<light> get_primary_light();
 	std::shared_ptr<light> get_secondary_light();
+
+	void play_animation(const std::string& name, bool loop) { play_animation(name, 1.0f, loop); }
+	void play_animation(const std::string& name, float weight = 1.0f, bool loop = false);
 
 	void update(uint32_t dt);
 };

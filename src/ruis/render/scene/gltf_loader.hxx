@@ -168,37 +168,6 @@ struct sampler {
 	{}
 };
 
-struct animation_sampler {
-	enum class interpolation {
-		linear,
-		step,
-		cubic_spline
-	};
-
-	std::shared_ptr<accessor> input;
-	std::shared_ptr<accessor> output;
-	interpolation interpolation_v;
-};
-
-struct animation_channel {
-	enum class path {
-		translation,
-		rotation,
-		scale,
-		weights,
-	};
-
-	std::shared_ptr<animation_sampler> sampler;
-	std::shared_ptr<node> target_node;
-	path target_path;
-};
-
-struct animation {
-	std::string name;
-	std::vector<std::shared_ptr<animation_sampler>> samplers;
-	std::vector<animation_channel> channels;
-};
-
 class gltf_loader
 {
 	// NOLINTNEXTLINE(clang-analyzer-webkit.NoUncountedMemberChecker, "false-positive")
@@ -212,7 +181,6 @@ class gltf_loader
 	std::vector<utki::shared_ref<mesh>> meshes;
 	std::vector<utki::shared_ref<accessor>> accessors;
 	std::vector<utki::shared_ref<buffer_view>> buffer_views;
-	std::vector<utki::shared_ref<animation>> animations;
 
 	std::vector<utki::shared_ref<material>> materials;
 	std::vector<utki::shared_ref<ruis::render::texture_2d>> textures;

@@ -25,41 +25,43 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <r4/quaternion.hpp>
 #include <r4/vector.hpp>
+#include <utki/shared_ref.hpp>
 #include <ruis/config.hpp>
-
-#include "mesh.hpp"
 
 namespace ruis::render {
 
-struct animation;
+struct node;
+struct accessor;
 
-struct trs_transformation {
-	ruis::vec3 translation{0, 0, 0};
-	ruis::quaternion rotation{0, 0, 0, 1};
-	ruis::vec3 scale{1, 1, 1};
+struct animation_sampler {
+	enum class interpolation {
+		linear,
+		step,
+		cubic_spline
+	};
+
+	std::shared_ptr<accessor> input;
+	std::shared_ptr<accessor> output;
+	interpolation interpolation_v;
 };
 
-constexpr trs_transformation identity_trs_transformation{
-	.translation = {0, 0, 0},
-	.rotation = {0, 0, 0, 1},
-	.scale = {1, 1, 1}
+struct animation_channel {
+	enum class path {
+		translation,
+		rotation,
+		scale,
+		weights,
+	};
+
+	std::shared_ptr<animation_sampler> sampler;
+	std::shared_ptr<node> target_node;
+	path target_path;
 };
 
-using transformation_variant = std::variant<
-	trs_transformation,
-	ruis::mat4 //
-	>;
-
-struct node {
+struct animation {
 	std::string name;
-
-	std::shared_ptr<mesh> mesh_v;
-
-	transformation_variant transformation;
-
-	std::vector<utki::shared_ref<node>> children;
-
-	ruis::mat4 get_transformation_matrix() const;
+	std::vector<std::shared_ptr<animation_sampler>> samplers;
+	std::vector<animation_channel> channels;
 };
 
 } // namespace ruis::render

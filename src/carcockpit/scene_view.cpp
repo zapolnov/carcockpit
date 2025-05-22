@@ -53,6 +53,10 @@ scene_view::scene_view(utki::shared_ref<ruis::context> context, all_parameters p
 
 	scene_v = l.load(papki::fs_file(this->params.file)).to_shared_ptr();
 
+	for (const auto& anim : this->params.animations) {
+		scene_v->play_animation(anim, true); // TODO: weight, looping from params
+	}
+
 	scene_renderer_v = std::make_shared<ruis::render::scene_renderer>(this->context);
 	scene_renderer_v->set_scene(scene_v);
 

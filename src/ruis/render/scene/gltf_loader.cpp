@@ -518,6 +518,10 @@ utki::shared_ref<animation> gltf_loader::read_animation(const jsondom::value& an
 			if (sampler_index < 0 || sampler_index >= new_animation.get().samplers.size())
 				throw std::invalid_argument("gltf: invalid sampler index " + std::to_string(sampler_index));
 
+			int64_t node_index = target_node->second.number().to_int64();
+			if (node_index < 0 || node_index >= this->nodes.size())
+				throw std::invalid_argument("gltf: invalid node index " + std::to_string(node_index));
+
 			animation_channel channel;
 
 			const auto& target_path_s = target_path->second.string();
@@ -532,6 +536,7 @@ utki::shared_ref<animation> gltf_loader::read_animation(const jsondom::value& an
 			else
 				throw std::invalid_argument("gltf: unsupported animation channel path " + target_path_s);
 
+			channel.target_node = this->nodes[node_index];
 			channel.sampler = new_animation.get().samplers[sampler_index];
 
 			new_animation.get().channels.push_back(std::move(channel));
@@ -805,7 +810,8 @@ utki::shared_ref<scene> gltf_loader::load(const papki::file& fi)
 	it = json.object().find("animations");
 	if (it != json.object().end() && it->second.is_array()) {
 		for (const auto& sub_json : it->second.array()) {
-			animations.push_back(read_animation(sub_json));
+			// TODO: this should probably go into some umbrella object.
+			active_scene.get().animations.push_back(read_animation(sub_json));
 		}
 	}
 
