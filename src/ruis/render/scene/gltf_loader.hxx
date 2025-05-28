@@ -33,6 +33,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace ruis::render {
 
+class gltf;
+
 // currently we support only one data buffer, the single data buffer located in the .glb file
 struct buffer_view {
 	uint32_t byte_length;
@@ -227,7 +229,7 @@ class gltf_loader
 	utki::shared_ref<material> read_material(const jsondom::value& material_json);
 
 public:
-	utki::shared_ref<scene> load(const papki::file& fi);
+	utki::shared_ref<ruis::render::gltf> load(const papki::file& fi);
 	gltf_loader(ruis::render::context& render_context);
 };
 

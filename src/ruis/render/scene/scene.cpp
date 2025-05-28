@@ -41,30 +41,6 @@ std::shared_ptr<light> scene::get_secondary_light()
 	return nullptr;
 }
 
-void scene::play_animation(const std::string& name, float weight, bool loop)
-{
-	for (const auto& it : this->animations) {
-		if (it.get().name == name) {
-			auto animator = utki::make_shared<ruis::render::animator>(it, weight, loop);
-			this->animators.emplace_back(std::move(animator));
-			return;
-		}
-	}
-}
-
-void scene::update(uint32_t dt)
-{
-	time += dt;
-
-	for (auto it = this->animators.begin(); it != this->animators.end(); ) {
-		auto& animator = it->get();
-		if (animator.update(dt))
-			++it;
-		else
-			it = this->animators.erase(it);
-	}
-}
-
 ruis::mat4 camera::get_projection_matrix(ruis::real aspect_ratio)
 {
 	auto projection = ruis::mat4().set_identity();

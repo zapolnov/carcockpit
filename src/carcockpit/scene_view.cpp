@@ -51,14 +51,14 @@ scene_view::scene_view(utki::shared_ref<ruis::context> context, all_parameters p
 
 	ruis::render::gltf_loader l(this->context.get().ren().render_context.get());
 
-	scene_v = l.load(papki::fs_file(this->params.file)).to_shared_ptr();
+	gltf_v = l.load(papki::fs_file(this->params.file)).to_shared_ptr();
 
 	for (const auto& anim : this->params.animations) {
-		scene_v->play_animation(anim, true); // TODO: weight, looping from params
+		gltf_v->play_animation(anim, true); // TODO: weight, looping from params
 	}
 
 	scene_renderer_v = std::make_shared<ruis::render::scene_renderer>(this->context);
-	scene_renderer_v->set_scene(scene_v);
+	scene_renderer_v->set_scene(gltf_v.get()->default_scene);
 
 	camera_v = std::make_shared<ruis::render::camera>();
 	scene_renderer_v->set_external_camera(camera_v);
@@ -68,7 +68,7 @@ scene_view::scene_view(utki::shared_ref<ruis::context> context, all_parameters p
 
 void scene_view::update(uint32_t dt)
 {
-	scene_v->update(dt);
+	gltf_v->update(dt);
 
 	this->fps_sec_counter += dt;
 	this->time += dt;
@@ -76,14 +76,16 @@ void scene_view::update(uint32_t dt)
 	float dt_sec = float(dt) / std::milli::den;
 	++this->fps;
 
-	auto light = scene_v->get_primary_light();
-	if (light) {
-		// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
-		float light_x = 3 * cosf(time_sec / 2);
-		// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
-		float light_z = 3 * sinf(time_sec / 2);
-		// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
-		light->pos = {light_x, 3, light_z, 1};
+	if (gltf_v->default_scene) {
+		auto light = gltf_v->default_scene->get_primary_light();
+		if (light) {
+			// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
+			float light_x = 3 * cosf(time_sec / 2);
+			// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
+			float light_z = 3 * sinf(time_sec / 2);
+			// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
+			light->pos = {light_x, 3, light_z, 1};
+		}
 	}
 
 	if (this->fps_sec_counter >= std::milli::den) {

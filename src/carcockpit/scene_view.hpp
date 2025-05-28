@@ -29,6 +29,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "../ruis/render/scene/scene.hpp"
 #include "../ruis/render/scene/scene_renderer.hxx"
+#include "../ruis/render/scene/gltf.hpp"
 
 #include "shaders/shader_pbr.hpp"
 #include "shaders/shader_phong.hpp"
@@ -44,7 +45,7 @@ class scene_view :
 	public ruis::updateable, //
 	public ruis::widget
 {
-	std::shared_ptr<ruis::render::scene> scene_v;
+	std::shared_ptr<ruis::render::gltf> gltf_v;
 	std::shared_ptr<ruis::render::scene_renderer> scene_renderer_v;
 	std::shared_ptr<ruis::render::camera> camera_v;
 

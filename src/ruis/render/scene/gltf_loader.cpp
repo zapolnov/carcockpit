@@ -20,6 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 /* ================ LICENSE END ================ */
 
 #include "gltf_loader.hxx"
+#include "gltf.hpp"
 
 #include <jsondom/dom.hpp>
 #include <papki/span_file.hpp>
@@ -672,7 +673,7 @@ std::vector<utki::shared_ref<tp_type>> gltf_loader::read_root_array(
 	return all;
 }
 
-utki::shared_ref<scene> gltf_loader::load(const papki::file& fi)
+utki::shared_ref<ruis::render::gltf> gltf_loader::load(const papki::file& fi)
 {
 	auto gltf = fi.load();
 	utki::deserializer d(gltf);
@@ -792,30 +793,31 @@ utki::shared_ref<scene> gltf_loader::load(const papki::file& fi)
 		}
 	}
 
+	utki::shared_ref<ruis::render::gltf> result = utki::make_shared<ruis::render::gltf>();
+
 	it = json.object().find("scenes");
 	if (it != json.object().end() && it->second.is_array()) {
 		for (const auto& sub_json : it->second.array()) {
 			scenes.push_back(read_scene(sub_json));
+			result.get().scenes.push_back(read_scene(sub_json));
 		}
 	}
 
-	auto active_scene = utki::make_shared<scene>();
 	int active_scene_index = read_int(json, "scene"sv);
 	if (active_scene_index < 0) {
 		// this .gltf file is a library
 	} else {
-		active_scene = scenes[active_scene_index];
+		result.get().default_scene = result.get().scenes[active_scene_index];
 	}
 
 	it = json.object().find("animations");
 	if (it != json.object().end() && it->second.is_array()) {
 		for (const auto& sub_json : it->second.array()) {
-			// TODO: this should probably go into some umbrella object.
-			active_scene.get().animations.push_back(read_animation(sub_json));
+			result.get().animations.push_back(read_animation(sub_json));
 		}
 	}
 
-	return active_scene;
+	return result;
 }
 
 template <typename tp_type>
