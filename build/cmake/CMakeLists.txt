@@ -3,49 +3,32 @@ cmake_minimum_required(VERSION 3.30)
 set(name carcockpit)
 project(${name})
 
-if(NOT IGAGIS_CMAKE_COMMON_INCLUDED)
-    set(dir "${CMAKE_CURRENT_SOURCE_DIR}/../../tool-configs/cmake")
-    if(NOT EXISTS "${dir}/common.cmake")
-        if(DEFINED ENV{IGAGIS_TOOL_CONFIGS})
-            set(url "$ENV{IGAGIS_TOOL_CONFIGS}")
-        else()
-            set(url "https://github.com/cppfw/tool-configs")
-        endif()
-        file(MAKE_DIRECTORY "${dir}")
-        file(DOWNLOAD "${url}/raw/refs/heads/main/cmake/common.cmake" "${dir}/common.cmake")
-    endif()
-    include("${dir}/common.cmake")
-endif()
+# !!! find_package must go after project() declaration !!!
+# Otherwise VCPKG does not set the CMAKE_PREFIX_PATH to find packages.
+find_package(myci CONFIG REQUIRED)
 
 set(srcs)
-add_source_directory(srcs
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../src/ruis"
-    PATTERNS "*.cpp" "*.hpp" "*.hxx"
+myci_add_source_files(srcs
+    DIRECTORY
+        ../../src/${name}
     RECURSIVE
 )
-add_source_directory(srcs
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../src/${name}"
-    PATTERNS "*.cpp" "*.hpp" "*.hxx"
+myci_add_source_files(srcs
+    DIRECTORY
+        ../../src/ruis
     RECURSIVE
 )
 
-set(rsrs)
-add_resource_directory(rsrs
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../res"
-    )
-
-declare_executable(${name}
+myci_declare_application(${name}
     SOURCES
         ${srcs}
-        ${rsrs}
+    RESOURCE_DIRECTORY
+        ../../res
     INCLUDE_DIRECTORIES
-        "${CMAKE_CURRENT_SOURCE_DIR}/../../src"
+        ../../src
     DEPENDENCIES
         clargs
         jsondom
         ruis
-        ruis-render-opengles
         ruisapp-opengles
-    EXTERNAL_DEPENDENCIES
-        GLESv2
 )
