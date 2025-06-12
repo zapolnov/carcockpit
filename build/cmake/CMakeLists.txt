@@ -29,6 +29,5 @@ myci_declare_application(${name}
     DEPENDENCIES
         clargs
         jsondom
-        ruis
-        ruisapp-opengles
+        ruisapp::ruisapp-opengles
 )
