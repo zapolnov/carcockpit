@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 #include "node.hpp"
-#include "animator.hpp"
+#include "gltf_animator.hpp"
 
 namespace ruis::render {
 
@@ -60,10 +60,9 @@ public:
 
 class scene
 {
-	std::vector<utki::shared_ref<animator>> animators{};
-
 public:
 	std::string name;
+	std::weak_ptr<gltf> gltf_v;
 
 	std::vector<utki::shared_ref<node>> nodes{};
 	std::vector<utki::shared_ref<camera>> cameras{};

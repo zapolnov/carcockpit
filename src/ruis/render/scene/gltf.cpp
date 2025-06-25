@@ -23,26 +23,66 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using namespace ruis::render;
 
-void gltf::play_animation(const std::string& name, float weight, bool loop)
+ruis::mat4 gltf::get_node_transformation_matrix(const node& n) const
 {
-	for (const auto& it : this->animations) {
-		if (it.get().name == name) {
-			auto animator = utki::make_shared<ruis::render::animator>(it, weight, loop);
-			this->animators.emplace_back(std::move(animator));
-			return;
+	auto transformation = n.transformation;
+
+	if (!this->animators.empty()) {
+		// TODO: animation mixing
+		const auto& tr = this->animators[0].get().node_transforms[n.index];
+
+		if (tr.translation.has_value()) {
+			if (auto* t = std::get_if<trs_transformation>(&transformation)) {
+				t->translation = tr.translation.value();
+			}
+			else if (auto* t = std::get_if<ruis::mat4>(&transformation)) {
+				// TODO
+			}
 		}
+
+		if (tr.rotation.has_value()) {
+			if (auto* t = std::get_if<trs_transformation>(&transformation)) {
+				t->rotation = tr.rotation.value();
+			}
+			else if (auto* t = std::get_if<ruis::mat4>(&transformation)) {
+				// TODO
+			}
+		}
+
+		if (tr.scale.has_value()) {
+			if (auto* t = std::get_if<trs_transformation>(&transformation)) {
+				t->scale = tr.scale.value();
+			}
+			else if (auto* t = std::get_if<ruis::mat4>(&transformation)) {
+				// TODO
+			}
+		}
+	}
+
+	if (std::holds_alternative<ruis::mat4>(transformation)) {
+		return std::get<ruis::mat4>(transformation);
+	} else {
+		ASSERT(std::holds_alternative<trs_transformation>(transformation))
+
+		const auto& trs = std::get<trs_transformation>(transformation);
+
+		auto m = ruis::mat4().set_identity();
+		m.translate(trs.translation);
+		m.rotate(trs.rotation);
+		m.scale(trs.scale);
+
+		return m;
 	}
 }
 
-void gltf::update(uint32_t dt)
+void gltf::play_animation(utki::shared_ref<ruis::updater> updater, const std::string& name, float weight, bool loop)
 {
-	time += dt;
-
-	for (auto it = this->animators.begin(); it != this->animators.end(); ) {
-		auto& animator = it->get();
-		if (animator.update(dt))
-			++it;
-		else
-			it = this->animators.erase(it);
+	for (const auto& it : this->animations) {
+		if (it.get().name == name) {
+			auto animator = utki::make_shared<gltf_animator>(shared_from_this(), updater, it, weight, loop);
+			animator.get().start();
+			this->animators.emplace_back(std::move(animator));
+			return;
+		}
 	}
 }

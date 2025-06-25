@@ -54,7 +54,7 @@ scene_view::scene_view(utki::shared_ref<ruis::context> context, all_parameters p
 	gltf_v = l.load(papki::fs_file(this->params.file)).to_shared_ptr();
 
 	for (const auto& anim : this->params.animations) {
-		gltf_v->play_animation(anim, true); // TODO: weight, looping from params
+		gltf_v->play_animation(this->context.get().updater, anim, true); // TODO: weight, looping from params
 	}
 
 	scene_renderer_v = std::make_shared<ruis::render::scene_renderer>(this->context);
@@ -68,8 +68,6 @@ scene_view::scene_view(utki::shared_ref<ruis::context> context, all_parameters p
 
 void scene_view::update(uint32_t dt)
 {
-	gltf_v->update(dt);
-
 	this->fps_sec_counter += dt;
 	this->time += dt;
 	[[maybe_unused]] float time_sec = float(this->time) / std::milli::den;

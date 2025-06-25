@@ -382,7 +382,7 @@ utki::shared_ref<mesh> gltf_loader::read_mesh(const jsondom::value& mesh_json)
 	);
 }
 
-utki::shared_ref<node> gltf_loader::read_node(const jsondom::value& json_node)
+utki::shared_ref<node> gltf_loader::read_node(uint32_t index, const jsondom::value& json_node)
 {
 	constexpr ruis::vec3 default_scale{1, 1, 1};
 	constexpr ruis::vec3 default_translation{0, 0, 0};
@@ -415,15 +415,17 @@ utki::shared_ref<node> gltf_loader::read_node(const jsondom::value& json_node)
 	child_indices.push_back(read_uint_array(json_node, "children"sv));
 
 	return utki::make_shared<node>(
+		index,
 		std::move(name), //
 		mesh_index >= 0 ? this->meshes.at(mesh_index).to_shared_ptr() : nullptr,
 		std::move(transformation)
 	);
 }
 
-utki::shared_ref<scene> gltf_loader::read_scene(const jsondom::value& scene_json)
+utki::shared_ref<scene> gltf_loader::read_scene(const std::weak_ptr<gltf>& gltf, const jsondom::value& scene_json)
 {
 	auto new_scene = utki::make_shared<scene>();
+	new_scene.get().gltf_v = gltf;
 	std::vector<uint32_t> node_indices = read_uint_array(scene_json, "nodes"sv);
 	new_scene.get().name = read_string(scene_json, "name"sv);
 
@@ -446,9 +448,9 @@ utki::shared_ref<scene> gltf_loader::read_scene(const jsondom::value& scene_json
 	return new_scene;
 }
 
-utki::shared_ref<animation> gltf_loader::read_animation(const jsondom::value& anim_json)
+utki::shared_ref<gltf_animation> gltf_loader::read_animation(const jsondom::value& anim_json)
 {
-	auto new_animation = utki::make_shared<animation>();
+	auto new_animation = utki::make_shared<gltf_animation>();
 
 	auto it = anim_json.object().find("name");
 	if (it != anim_json.object().end())
@@ -468,15 +470,15 @@ utki::shared_ref<animation> gltf_loader::read_animation(const jsondom::value& an
 				output == sampler_json.object().end())
 				continue;
 
-			auto sampler = std::make_shared<animation_sampler>();
+			auto sampler = std::make_shared<gltf_animation_sampler>();
 
 			const auto& interpolation_s = interpolation->second.string();
 			if (interpolation_s == "LINEAR")
-				sampler->interpolation_v = animation_sampler::interpolation::linear;
+				sampler->interpolation_v = gltf_animation_sampler::interpolation::linear;
 			else if (interpolation_s == "STEP")
-				sampler->interpolation_v = animation_sampler::interpolation::step;
+				sampler->interpolation_v = gltf_animation_sampler::interpolation::step;
 			else if (interpolation_s == "CUBICSPLINE")
-				sampler->interpolation_v = animation_sampler::interpolation::cubic_spline;
+				sampler->interpolation_v = gltf_animation_sampler::interpolation::cubic_spline;
 			else
 				throw std::invalid_argument("gltf: unsupported sampler interpolation " + interpolation_s);
 
@@ -495,6 +497,8 @@ utki::shared_ref<animation> gltf_loader::read_animation(const jsondom::value& an
 			new_animation.get().samplers.push_back(std::move(sampler));
 		}
 	}
+
+	real duration = 0;
 
 	it = anim_json.object().find("channels");
 	if (it != anim_json.object().end() && it->second.is_array()) {
@@ -523,26 +527,35 @@ utki::shared_ref<animation> gltf_loader::read_animation(const jsondom::value& an
 			if (node_index < 0 || node_index >= this->nodes.size())
 				throw std::invalid_argument("gltf: invalid node index " + std::to_string(node_index));
 
-			animation_channel channel;
+			gltf_animation_channel channel;
 
 			const auto& target_path_s = target_path->second.string();
 			if (target_path_s == "translation")
-				channel.target_path = animation_channel::path::translation;
+				channel.target_path = gltf_animation_channel::path::translation;
 			else if (target_path_s == "rotation")
-				channel.target_path = animation_channel::path::rotation;
+				channel.target_path = gltf_animation_channel::path::rotation;
 			else if (target_path_s == "scale")
-				channel.target_path = animation_channel::path::scale;
+				channel.target_path = gltf_animation_channel::path::scale;
 			else if (target_path_s == "weights")
-				channel.target_path = animation_channel::path::weights;
+				channel.target_path = gltf_animation_channel::path::weights;
 			else
 				throw std::invalid_argument("gltf: unsupported animation channel path " + target_path_s);
 
 			channel.target_node = this->nodes[node_index];
 			channel.sampler = new_animation.get().samplers[sampler_index];
 
+			const auto& times = std::get<std::vector<float>>(channel.sampler.get()->input->data);
+			if (!times.empty()) {
+				real max_time = times[times.size() - 1];
+				if (duration < max_time)
+					duration = max_time;
+			}
+
 			new_animation.get().channels.push_back(std::move(channel));
 		}
 	}
+
+	new_animation.get().duration = duration;
 
 	return new_animation;
 }
@@ -778,10 +791,14 @@ utki::shared_ref<ruis::render::gltf> gltf_loader::load(const papki::file& fi)
 		}
 	}
 
+	utki::shared_ref<ruis::render::gltf> result = utki::make_shared<ruis::render::gltf>();
+
 	it = json.object().find("nodes");
 	if (it != json.object().end() && it->second.is_array()) {
 		for (const auto& sub_json : it->second.array()) {
-			nodes.push_back(read_node(sub_json));
+			auto node = read_node(nodes.size(), sub_json);
+			nodes.push_back(node);
+			result.get().nodes.push_back(std::move(node));
 		}
 	}
 
@@ -793,13 +810,13 @@ utki::shared_ref<ruis::render::gltf> gltf_loader::load(const papki::file& fi)
 		}
 	}
 
-	utki::shared_ref<ruis::render::gltf> result = utki::make_shared<ruis::render::gltf>();
-
 	it = json.object().find("scenes");
 	if (it != json.object().end() && it->second.is_array()) {
+		std::weak_ptr<ruis::render::gltf> gltf_w = result.to_shared_ptr();
 		for (const auto& sub_json : it->second.array()) {
-			scenes.push_back(read_scene(sub_json));
-			result.get().scenes.push_back(read_scene(sub_json));
+			auto scene = read_scene(gltf_w, sub_json);
+			scenes.push_back(scene);
+			result.get().scenes.push_back(std::move(scene));
 		}
 	}
 

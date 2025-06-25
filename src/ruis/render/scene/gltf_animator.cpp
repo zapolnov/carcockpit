@@ -1,13 +1,16 @@
-#include "animator.hpp"
+#include "gltf_animator.hpp"
+#include "gltf.hpp"
 #include "gltf_loader.hxx"
 
 using namespace ruis::render;
 
-animator::animator(utki::shared_ref<ruis::render::animation> anim, float weight_coeff, bool loop)
-	: animation(std::move(anim))
+gltf_animator::gltf_animator(std::shared_ptr<gltf> gltf, utki::shared_ref<ruis::updater> updater, utki::shared_ref<gltf_animation> anim, float weight_coeff, bool loop)
+	: ruis::animation(updater, uint32_t(anim.get().duration * 1000.0))
+	, gltf_v(std::move(gltf))
+	, animation(std::move(anim))
+	, node_transforms(gltf_v.lock()->nodes.size())
 	, weight(weight_coeff)
 	, looping(loop)
-	, time(0)
 {
 }
 
@@ -44,25 +47,28 @@ static T cubic_spline(const std::vector<T>& data, float start_time, float end_ti
 }
 
 template <typename T>
-static T get_interpolated_value(const std::vector<T>& data, float start_time, float end_time, size_t start_index, size_t end_index, float delta, animation_sampler::interpolation mode)
+static T get_interpolated_value(const std::vector<T>& data, float start_time, float end_time, size_t start_index, size_t end_index, float delta, gltf_animation_sampler::interpolation mode)
 {
 	switch (mode) {
-		case animation_sampler::interpolation::step:
+		case gltf_animation_sampler::interpolation::step:
 		default: // shouldn't happen, but just in case
 			return data[start_index];
 			break;
-		case animation_sampler::interpolation::linear:
+		case gltf_animation_sampler::interpolation::linear:
 			return lerp(data[start_index], data[end_index], delta); // TODO: should use slerp for rotation!
 			break;
-		case animation_sampler::interpolation::cubic_spline:
+		case gltf_animation_sampler::interpolation::cubic_spline:
 			return cubic_spline(data, start_time, end_time, start_index, end_index, delta);
 			break;
 	}
 }
 
-bool animator::update(uint32_t dt)
+void gltf_animator::on_update(real factor)
 {
-	time += double(dt) * 0.0001;
+	double time = factor * animation.get().duration;
+
+	for (auto& it : node_transforms)
+		it.reset();
 
 	for (auto& channel : animation.get().channels) {
 		const auto& input = channel.sampler.get()->input.get();
@@ -106,43 +112,28 @@ bool animator::update(uint32_t dt)
 			delta = 1.0f;
 
 		switch (channel.target_path) {
-			case animation_channel::path::translation: {
+			case gltf_animation_channel::path::translation: {
 				const auto& data = std::get<std::vector<ruis::vec3>>(output->data);
 				ruis::vec3 value = get_interpolated_value(data, start_time, end_time, start_index, end_index, delta, channel.sampler.get()->interpolation_v);
-				if (auto* tr = std::get_if<trs_transformation>(&channel.target_node.get()->transformation)) {
-					tr->translation = value;
-					//printf("T %.2f %.2f %.2f %.2f (%.2f %.2f %.2f)\n", t, start_time, end_time, delta, value.x(), value.y(), value.z());
-				} else if (auto* tr = std::get_if<ruis::mat4>(&channel.target_node.get()->transformation)) {
-					// TODO
-				}
+				node_transforms[channel.target_node.get()->index].translation = value;
 				break;
 			}
 
-			case animation_channel::path::rotation: {
+			case gltf_animation_channel::path::rotation: {
 				const auto& data = std::get<std::vector<ruis::vec4>>(output->data);
 				ruis::vec4 value = get_interpolated_value(data, start_time, end_time, start_index, end_index, delta, channel.sampler.get()->interpolation_v);
-				if (auto* tr = std::get_if<trs_transformation>(&channel.target_node.get()->transformation)) {
-					tr->rotation = ruis::quaternion(value);
-					printf("R %.2f %.2f %.2f %.2f (%.2f %.2f %.2f %.2f)\n", t, start_time, end_time, delta, value.x(), value.y(), value.z(), value.w());
-				} else if (auto* tr = std::get_if<ruis::mat4>(&channel.target_node.get()->transformation)) {
-					// TODO
-				}
+				node_transforms[channel.target_node.get()->index].rotation = ruis::quaternion(value);
 				break;
 			}
 
-			case animation_channel::path::scale: {
+			case gltf_animation_channel::path::scale: {
 				const auto& data = std::get<std::vector<ruis::vec3>>(output->data);
 				ruis::vec3 value = get_interpolated_value(data, start_time, end_time, start_index, end_index, delta, channel.sampler.get()->interpolation_v);
-				if (auto* tr = std::get_if<trs_transformation>(&channel.target_node.get()->transformation)) {
-					tr->scale = value;
-					printf("S %.2f %.2f %.2f %.2f (%.2f %.2f %.2f)\n", t, start_time, end_time, delta, value.x(), value.y(), value.z());
-				} else if (auto* tr = std::get_if<ruis::mat4>(&channel.target_node.get()->transformation)) {
-					// TODO
-				}
+				node_transforms[channel.target_node.get()->index].scale = value;
 				break;
 			}
 
-			case animation_channel::path::weights: {
+			case gltf_animation_channel::path::weights: {
 				const auto& data = std::get<std::vector<float>>(output->data);
 				float value = get_interpolated_value(data, start_time, end_time, start_index, end_index, delta, channel.sampler.get()->interpolation_v);
 				// TODO
@@ -150,6 +141,24 @@ bool animator::update(uint32_t dt)
 			}
 		}
 	}
+}
 
-	return true;
+void gltf_animator::on_end(uint32_t dt)
+{
+	if (looping) {
+		// TODO: this is wrong
+		rewind();
+		start();
+		return;
+	}
+
+	auto gltf = this->gltf_v.lock();
+	if (gltf) {
+		for (auto it = gltf->animators.begin(); it != gltf->animators.end(); ++it) {
+			if (&it->get() == this) {
+				gltf->animators.erase(it);
+				break;
+			}
+		}
+	}
 }

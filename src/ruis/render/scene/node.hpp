@@ -31,8 +31,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace ruis::render {
 
-struct animation;
-
 struct trs_transformation {
 	ruis::vec3 translation{0, 0, 0};
 	ruis::quaternion rotation{0, 0, 0, 1};
@@ -51,15 +49,11 @@ using transformation_variant = std::variant<
 	>;
 
 struct node {
+	uint32_t index;
 	std::string name;
-
 	std::shared_ptr<mesh> mesh_v;
-
 	transformation_variant transformation;
-
 	std::vector<utki::shared_ref<node>> children;
-
-	ruis::mat4 get_transformation_matrix() const;
 };
 
 } // namespace ruis::render

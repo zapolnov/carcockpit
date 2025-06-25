@@ -24,14 +24,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace ruis::render {
 
-class gltf
+class gltf : public std::enable_shared_from_this<gltf>
 {
-	uint32_t time = 0;
-	std::vector<utki::shared_ref<animator>> animators{};
+	std::vector<utki::shared_ref<gltf_animator>> animators{};
+
+	friend class gltf_animator;
 
 public:
+	std::vector<utki::shared_ref<node>> nodes{}; // TODO: we only use size of this
 	std::vector<utki::shared_ref<scene>> scenes{};
-	std::vector<utki::shared_ref<animation>> animations{};
+	std::vector<utki::shared_ref<gltf_animation>> animations{};
 
 	std::shared_ptr<scene> default_scene;
 
@@ -42,10 +44,11 @@ public:
 	gltf& operator=(gltf&&) = default;
 	virtual ~gltf() = default;
 
-	void play_animation(const std::string& name, bool loop) { play_animation(name, 1.0f, loop); }
-	void play_animation(const std::string& name, float weight = 1.0f, bool loop = false);
+	// TODO: this is bad
+	ruis::mat4 get_node_transformation_matrix(const node& node) const;
 
-	void update(uint32_t dt);
+	void play_animation(utki::shared_ref<ruis::updater> updater, const std::string& name, bool loop) { play_animation(updater, name, 1.0f, loop); }
+	void play_animation(utki::shared_ref<ruis::updater> updater, const std::string& name, float weight = 1.0f, bool loop = false);
 };
 
 } // namespace ruis::render

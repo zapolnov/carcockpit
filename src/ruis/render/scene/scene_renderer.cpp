@@ -20,6 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 /* ================ LICENSE END ================ */
 
 #include "scene_renderer.hxx"
+#include "gltf.hpp"
 
 #include <chrono>
 
@@ -101,8 +102,9 @@ void scene_renderer::render(
 	root_model_matrix.set_identity();
 	root_model_matrix.scale(scene_scaling_factor);
 
+	auto gltf = scene_v->gltf_v.lock();
 	for (const auto& node_v : scene_v->nodes) {
-		this->render_node(node_v.get(), root_model_matrix);
+		this->render_node(gltf, node_v.get(), root_model_matrix);
 	}
 }
 
@@ -144,11 +146,13 @@ void scene_renderer::render_environment()
 }
 
 void scene_renderer::render_node(
+	const std::shared_ptr<gltf>& gltf,
 	const node& n, //
 	const ruis::mat4& parent_tree_model_matrix
 )
 {
-	auto parent_model_matrix = parent_tree_model_matrix * n.get_transformation_matrix();
+	ruis::mat4 trs = gltf->get_node_transformation_matrix(n); // TODO: what if gltf is null?
+	auto parent_model_matrix = parent_tree_model_matrix * trs;
 
 	// TODO: why maybe_unused?
 	[[maybe_unused]] ruis::mat4 modelview_matrix = view_matrix * parent_model_matrix;
@@ -187,6 +191,6 @@ void scene_renderer::render_node(
 
 	// render children
 	for (const auto& node_v : n.children) {
-		this->render_node(node_v.get(), parent_model_matrix);
+		this->render_node(gltf, node_v.get(), parent_model_matrix);
 	}
 }

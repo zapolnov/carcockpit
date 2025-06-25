@@ -27,26 +27,42 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <r4/vector.hpp>
 #include <utki/shared_ref.hpp>
 #include <ruis/config.hpp>
-#include "animation.hpp"
 
 namespace ruis::render {
 
-class animator
-{
-	utki::shared_ref<ruis::render::animation> animation;
-	float weight;
-	bool looping;
-	double time;
+struct node;
+struct accessor;
 
-public:
-	explicit animator(utki::shared_ref<ruis::render::animation> anim, float weight_coeff = 1.0f, bool loop = false);
-	animator(const animator&) = default;
-	animator(animator&&) = default;
-	animator& operator=(const animator&) = default;
-	animator& operator=(animator&&) = default;
-	virtual ~animator() = default;
+struct gltf_animation_sampler {
+	enum class interpolation {
+		linear,
+		step,
+		cubic_spline
+	};
 
-	bool update(uint32_t dt);
+	std::shared_ptr<accessor> input;
+	std::shared_ptr<accessor> output;
+	interpolation interpolation_v;
+};
+
+struct gltf_animation_channel {
+	enum class path {
+		translation,
+		rotation,
+		scale,
+		weights,
+	};
+
+	std::shared_ptr<gltf_animation_sampler> sampler;
+	std::shared_ptr<node> target_node;
+	path target_path;
+};
+
+struct gltf_animation {
+	std::string name;
+	real duration;
+	std::vector<std::shared_ptr<gltf_animation_sampler>> samplers;
+	std::vector<gltf_animation_channel> channels;
 };
 
 } // namespace ruis::render

@@ -50,6 +50,7 @@ protected:
 	std::shared_ptr<const ruis::res::texture_cube> texture_environment_cube;
 
 	void render_node(
+		const std::shared_ptr<gltf>& gltf,
 		const node& n, //
 		const ruis::mat4& parent_tree_model_matrix
 	);
