@@ -21,7 +21,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "application.hpp"
 
-#include <clargs/parser.hpp>
+#include <utki/config.hpp>
+
+#if CFG_OS_NAME != CFG_OS_NAME_EMSCRIPTEN
+#	include <clargs/parser.hpp>
+#endif
 
 #include "gui.hpp"
 #include "scene_view.hpp"
@@ -29,18 +33,22 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using namespace carcockpit;
 using namespace std::string_literals;
 
+namespace {
+constexpr auto screen_width = 1024;
+constexpr auto screen_height = 600;
+} // namespace
+
 application::application(
 	bool window, //
 	std::string_view res_path
 ) :
 	ruisapp::application(
 		std::string(app_name), //
-		[]() {
-			// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
-			ruisapp::window_params wp(r4::vector2<unsigned>(1024, 600));
-			wp.buffers.set(ruisapp::window_params::buffer::depth);
-			return wp;
-		}()
+		{
+			.dims = {screen_width, screen_height},
+			.title = std::string(app_name),
+			.buffers = {ruisapp::buffer::depth}
+}
 	),
 	res_path(papki::as_dir(res_path))
 {
@@ -69,6 +77,10 @@ std::unique_ptr<application> carcockpit::make_application(
 	utki::span<std::string_view> args
 )
 {
+#if CFG_OS_NAME == CFG_OS_NAME_EMSCRIPTEN
+	bool window = true;
+	std::string res_path = "res/"s;
+#else
 	bool window = false;
 
 #ifdef _WIN32
@@ -99,6 +111,7 @@ std::unique_ptr<application> carcockpit::make_application(
 	);
 
 	p.parse(args);
+#endif
 
 	return std::make_unique<application>(
 		window, //
